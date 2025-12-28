@@ -1,158 +1,291 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Admin Bio Data Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-  </style>
-<script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#FDAA84",
-            "secondary": "#FF80B7",
-            "tertiary": "#FFDE85",
-            "background-light": "#FAFAFA",
-            "background-dark": "#101922",
-          },
-          fontFamily: {
-            "display": ["Inter", "sans-serif"]
-          },
-          borderRadius: {
-            "DEFAULT": "0.5rem",
-            "lg": "0.75rem",
-            "xl": "1rem",
-            "full": "9999px"
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Bio Data Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FDAA84",
+              secondary: "#FF80B7",
+              tertiary: "#FFDE85",
+              "background-light": "#FAFAFA",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "0.75rem",
+              xl: "1rem",
+              full: "9999px",
+            },
           },
         },
-      },
-    }
-  </script>
-<style>
-    body {
-      min-height: 100dvh;
-    }
-  </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+      };
+    </script>
+    <style>
+      body {
+        min-height: 100dvh;
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="font-display">
-<div class="relative flex min-h-screen w-full flex-col bg-background-light group/design-root overflow-x-hidden">
-<div class="flex flex-col flex-1">
-<header class="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 bg-white p-4">
-<button class="flex h-10 w-10 items-center justify-center rounded-full text-gray-800">
-<span class="material-symbols-outlined text-3xl">menu</span>
-</button>
-<h1 class="text-lg font-bold text-gray-900">Bio-Data Dashboard</h1>
-<div class="w-10"></div>
-</header>
-<main class="flex-1 pb-4">
-<div class="sticky top-[72px] z-10 bg-background-light px-4 pt-4 pb-3">
-<div class="flex gap-3">
-<div class="relative flex-1">
-<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-<span class="material-symbols-outlined text-gray-500">search</span>
-</div>
-<input class="block w-full rounded-xl border-gray-300 bg-white py-3 pl-10 pr-3 text-base text-gray-800 placeholder:text-gray-500 focus:border-primary focus:ring-primary" placeholder="Search by name or ID" type="text" value=""/>
-</div>
-<button class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
-<span class="material-symbols-outlined text-2xl">filter_list</span>
-</button>
-</div>
-</div>
-<div class="px-4 pb-4">
-<div class="flex h-12 flex-1 items-center justify-center rounded-xl bg-gray-100 p-1.5">
-<label class="flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold leading-normal text-gray-600 has-[:checked]:bg-white has-[:checked]:text-primary has-[:checked]:shadow-md">
-<span class="material-symbols-outlined text-xl">grid_view</span>
-<span class="truncate">Gallery</span>
-<input checked="" class="sr-only" name="view-toggle" type="radio" value="Gallery View"/>
-</label>
-<label class="flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold leading-normal text-gray-600 has-[:checked]:bg-white has-[:checked]:text-primary has-[:checked]:shadow-md">
-<span class="material-symbols-outlined text-xl">view_list</span>
-<span class="truncate">List</span>
-<input class="sr-only" name="view-toggle" type="radio" value="List View"/>
-</label>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-4 px-4">
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Anjali Sharma" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5M_TKheyAyPFOTg2gnqd5Coo23sSf8FcRWyf0YzEGpe9ukuKTEk8eYh74slr5BVnwTwvwy0fiNec7SbxqSOzgKzoLAVB8BmIR35Ote80zemNRIZy3ez2eZc5bybClmIaHCxfTDu49rgQ5_OMz3lZByauc1tC88EX6-rTf-2aO4gJ3Kvaue1XK0gbW7OQ6BlanqauWWAD2WhlWwVthk5myMf02U2fTU1iwmyC7-k2Y9ZkeG_hysG_W-kC1zWSKDaqTkjVkEALxNqHA');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Anjali Sharma</p>
-<p class="text-sm text-gray-600">28, Mumbai</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Rohan Mehra" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAybvIUkFZtgw1gukcVqhG8Yn-p__Oz7i7NuVPxVQY1XcHNDYubcpWUbejXVZU4DY0LE_7fMoceUhZLYTTOZ2AdgpIqCAnLFVd_zOUUtn55DgO9Wh64Y5kR6nxu1-wMWAz21e2VZxRBVB1oYervD4FiG9TjI1FNsLpljmtZL6YVOowtqPvw3jKn-_He4c_ZZc7Naa8ssIYwWWkpfc_ItOHsv8aM3jwah33FCu062LolweTLJ_vG3y82yRXmFVxYJEgccW6Y1PtWDxKU');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Rohan Mehra</p>
-<p class="text-sm text-gray-600">31, Delhi</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Priya Patel" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBE7T-s3dMI8-Zj__RlrwAtTsLFFkeAYkagxIHTGNDbaNljvT1TX3leIu7iqUfR6t0jiEHJg65Xv4QdEwFnzhmTUv4D4-elyyjfniIbbN9vGottW-cE0SabNNqLjVkzpTnn7mnAxIVD8sl-jyKLwScZEWnqsKCs7MT4jR0yDavuyLOITGIitgTprXpocWRQyikX4b7dXO62wOQV8-IvzyTTfuAAJs0x0-_b2jxmKm_I1EwugtB7j0YfGL1fD_mi9blBsv83_sHrC1nm');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Priya Patel</p>
-<p class="text-sm text-gray-600">29, Bangalore</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Vikram Singh" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuARFk1Jw2-n0U1eqKB2H48J-Au3L3aXNMsbFY_CoMCW1ffHcNePN_IhporFCr5LKrs2DOZm_pZhx1PG_AvNVDdlD00DLmb7UQ60ASp4DG-UkL86saXOhuzFGNZ3GUVndu57dEXu2E_LtfpXSWr6BDNks-J8NSr1IqRPEDq_hvyjxtVXNIwE8vt1qXZ__4WKt9MN5H445RinaC1luLXiYSfq5usLUcZU1f34kMkJr1J-bdk3jtEXs2k_l1_jttayVsh58URRukajy9eB');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Vikram Singh</p>
-<p class="text-sm text-gray-600">32, Chennai</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Sneha Gupta" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3J5PJ7V-D3gQXSVFZnaPXtXxaE4fVHbmD0MZ1JPEnKvjUHr3JFgl6A9xDIUIj4VIsVqVdhAYx_BPet4D7H9j96D7vq7DBz2ExURujcnqBytcYxjxXTsmMQvu8g5ItKHid-jXB7xkP6gWYKcK9FvTCD6AGup3eQ_HNIWqVtlSxZMnUPtOrGDI7ty7aY6Io4ALj6yGRg5blG2JL9m0kF2lNLyx9Z6uWkzOKQE5JF0aa8vexmWsu6TFlTj6sFhB8Puoxo9t_Lhx_HhhF');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Sneha Gupta</p>
-<p class="text-sm text-gray-600">27, Kolkata</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Arjun Desai" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD5Jw438vPF_f5zp6yMhxnap_NNwPM_uXDKbWOcrmxksATqMvoAa4Fj_lNxB_Lg_JqEn7oZjFViGeA0C0lHRTnCjhAZ3PE2_7lEy8FX1KTXYVIgBZ02psOAAVP5KcC16D6_yvq0G2B3vqP3P1S3wno_g0Z1KpupV3Pt99DU91BiJq8b4OWNt9MImlBkBFjoGs-uYCPbxE_yLn4iwS66hPv31YvM_zeLOowGNBW_pVnLM0yFI1HUQGeXRNDbOXOMR0lpfeOpiP-yGALX');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Arjun Desai</p>
-<p class="text-sm text-gray-600">30, Hyderabad</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Aishwarya Iyer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPo_UJc0Ho7EbpQAzN2dfSKFrvZE_FStZNQikzj52Xg8gUecA48Y3uhn_FDU3y7L7or0z59QT_YdLSUBehJwEvOjjLlFdHv1nTkheJoI5ZjXxi-JLyydz5CT2R1Q1cAd7QMM1NDil6A2rcswj884ljMPvntwvF8FDgCWhZ-pVFnfm9BfjBb3tOr0Nma2B_odvZW-vIfsxTPdhQXnT_SIZ8IqiXSMj0UNlr57_NvQg_dkDa7H_YVUArIlSiHtnyPw950G78clo8yW-h');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Aishwarya Iyer</p>
-<p class="text-sm text-gray-600">26, Pune</p>
-</div>
-</div>
-<div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-<div class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat" data-alt="Portrait of Karan Malhotra" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAerU_K5DnV9PC9ErYeR0KFY6U63D9uB9UalqH6uZ0giW5wWglQLRz2xb5prLRBV3ryhdMPAn6eHKt9kguQ0J_7Y707unX6KYejfo7DK9dQVu3v1JyECwpI3yJYmNzghpzRZrVwoPccbAgHDYagqQfnsF7rBhTiATYH0rrfZSjyIaujGlPMwYwq-F-dOOyrI7bGfPZvCt6gi6E2il9IpBVhw0S25Pdl_huBnpv_gu5MRR940tHMqBJSjrmWJ26wOqbXFK_QsQvLiDlJ');"></div>
-<div class="p-3">
-<p class="truncate text-base font-semibold text-gray-900">Karan Malhotra</p>
-<p class="text-sm text-gray-600">33, Ahmedabad</p>
-</div>
-</div>
-</div>
-</main>
-<button class="fixed bottom-6 right-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-white shadow-lg transition-transform active:scale-95">
-<span class="material-symbols-outlined text-3xl">add</span>
-</button>
-<footer class="sticky bottom-0 z-10 border-t border-gray-200 bg-white py-2">
-<div class="text-center text-xs text-gray-500">
-<p>© 2024 Rishta by Aggarwal. All Rights Reserved.</p>
-</div>
-</footer>
-</div>
-</div>
-
-</body></html>
+  <body class="font-display">
+    <div
+      class="relative flex min-h-screen w-full flex-col bg-background-light group/design-root overflow-x-hidden"
+    >
+      <div class="flex flex-col flex-1">
+        <header
+          class="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 bg-white p-4"
+        >
+          <button
+            class="flex h-10 w-10 items-center justify-center rounded-full text-gray-800"
+          >
+            <span class="material-symbols-outlined text-3xl">menu</span>
+          </button>
+          <h1 class="text-lg font-bold text-gray-900">Bio-Data Dashboard</h1>
+          <div class="w-10"></div>
+        </header>
+        <main class="flex-1 pb-4">
+          <div
+            class="sticky top-[72px] z-10 bg-background-light px-4 pt-4 pb-3"
+          >
+            <div class="flex gap-3">
+              <div class="relative flex-1">
+                <div
+                  class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                >
+                  <span class="material-symbols-outlined text-gray-500"
+                    >search</span
+                  >
+                </div>
+                <input
+                  class="block w-full rounded-xl border-gray-300 bg-white py-3 pl-10 pr-3 text-base text-gray-800 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                  placeholder="Search by name or ID"
+                  type="text"
+                  value=""
+                />
+              </div>
+              <button
+                class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >filter_list</span
+                >
+              </button>
+            </div>
+          </div>
+          <div class="px-4 pb-4">
+            <div
+              class="flex h-12 flex-1 items-center justify-center rounded-xl bg-gray-100 p-1.5"
+            >
+              <label
+                class="flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold leading-normal text-gray-600 has-[:checked]:bg-white has-[:checked]:text-primary has-[:checked]:shadow-md"
+              >
+                <span class="material-symbols-outlined text-xl">grid_view</span>
+                <span class="truncate">Gallery</span>
+                <input
+                  checked=""
+                  class="sr-only"
+                  name="view-toggle"
+                  type="radio"
+                  value="Gallery View"
+                />
+              </label>
+              <label
+                class="flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold leading-normal text-gray-600 has-[:checked]:bg-white has-[:checked]:text-primary has-[:checked]:shadow-md"
+              >
+                <span class="material-symbols-outlined text-xl">view_list</span>
+                <span class="truncate">List</span>
+                <input
+                  class="sr-only"
+                  name="view-toggle"
+                  type="radio"
+                  value="List View"
+                />
+              </label>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 px-4">
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Anjali Sharma"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuA5M_TKheyAyPFOTg2gnqd5Coo23sSf8FcRWyf0YzEGpe9ukuKTEk8eYh74slr5BVnwTwvwy0fiNec7SbxqSOzgKzoLAVB8BmIR35Ote80zemNRIZy3ez2eZc5bybClmIaHCxfTDu49rgQ5_OMz3lZByauc1tC88EX6-rTf-2aO4gJ3Kvaue1XK0gbW7OQ6BlanqauWWAD2WhlWwVthk5myMf02U2fTU1iwmyC7-k2Y9ZkeG_hysG_W-kC1zWSKDaqTkjVkEALxNqHA&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Anjali Sharma
+                </p>
+                <p class="text-sm text-gray-600">28, Mumbai</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Rohan Mehra"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAybvIUkFZtgw1gukcVqhG8Yn-p__Oz7i7NuVPxVQY1XcHNDYubcpWUbejXVZU4DY0LE_7fMoceUhZLYTTOZ2AdgpIqCAnLFVd_zOUUtn55DgO9Wh64Y5kR6nxu1-wMWAz21e2VZxRBVB1oYervD4FiG9TjI1FNsLpljmtZL6YVOowtqPvw3jKn-_He4c_ZZc7Naa8ssIYwWWkpfc_ItOHsv8aM3jwah33FCu062LolweTLJ_vG3y82yRXmFVxYJEgccW6Y1PtWDxKU&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Rohan Mehra
+                </p>
+                <p class="text-sm text-gray-600">31, Delhi</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Priya Patel"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBE7T-s3dMI8-Zj__RlrwAtTsLFFkeAYkagxIHTGNDbaNljvT1TX3leIu7iqUfR6t0jiEHJg65Xv4QdEwFnzhmTUv4D4-elyyjfniIbbN9vGottW-cE0SabNNqLjVkzpTnn7mnAxIVD8sl-jyKLwScZEWnqsKCs7MT4jR0yDavuyLOITGIitgTprXpocWRQyikX4b7dXO62wOQV8-IvzyTTfuAAJs0x0-_b2jxmKm_I1EwugtB7j0YfGL1fD_mi9blBsv83_sHrC1nm&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Priya Patel
+                </p>
+                <p class="text-sm text-gray-600">29, Bangalore</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Vikram Singh"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuARFk1Jw2-n0U1eqKB2H48J-Au3L3aXNMsbFY_CoMCW1ffHcNePN_IhporFCr5LKrs2DOZm_pZhx1PG_AvNVDdlD00DLmb7UQ60ASp4DG-UkL86saXOhuzFGNZ3GUVndu57dEXu2E_LtfpXSWr6BDNks-J8NSr1IqRPEDq_hvyjxtVXNIwE8vt1qXZ__4WKt9MN5H445RinaC1luLXiYSfq5usLUcZU1f34kMkJr1J-bdk3jtEXs2k_l1_jttayVsh58URRukajy9eB&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Vikram Singh
+                </p>
+                <p class="text-sm text-gray-600">32, Chennai</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Sneha Gupta"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuC3J5PJ7V-D3gQXSVFZnaPXtXxaE4fVHbmD0MZ1JPEnKvjUHr3JFgl6A9xDIUIj4VIsVqVdhAYx_BPet4D7H9j96D7vq7DBz2ExURujcnqBytcYxjxXTsmMQvu8g5ItKHid-jXB7xkP6gWYKcK9FvTCD6AGup3eQ_HNIWqVtlSxZMnUPtOrGDI7ty7aY6Io4ALj6yGRg5blG2JL9m0kF2lNLyx9Z6uWkzOKQE5JF0aa8vexmWsu6TFlTj6sFhB8Puoxo9t_Lhx_HhhF&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Sneha Gupta
+                </p>
+                <p class="text-sm text-gray-600">27, Kolkata</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Arjun Desai"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuD5Jw438vPF_f5zp6yMhxnap_NNwPM_uXDKbWOcrmxksATqMvoAa4Fj_lNxB_Lg_JqEn7oZjFViGeA0C0lHRTnCjhAZ3PE2_7lEy8FX1KTXYVIgBZ02psOAAVP5KcC16D6_yvq0G2B3vqP3P1S3wno_g0Z1KpupV3Pt99DU91BiJq8b4OWNt9MImlBkBFjoGs-uYCPbxE_yLn4iwS66hPv31YvM_zeLOowGNBW_pVnLM0yFI1HUQGeXRNDbOXOMR0lpfeOpiP-yGALX&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Arjun Desai
+                </p>
+                <p class="text-sm text-gray-600">30, Hyderabad</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Aishwarya Iyer"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBPo_UJc0Ho7EbpQAzN2dfSKFrvZE_FStZNQikzj52Xg8gUecA48Y3uhn_FDU3y7L7or0z59QT_YdLSUBehJwEvOjjLlFdHv1nTkheJoI5ZjXxi-JLyydz5CT2R1Q1cAd7QMM1NDil6A2rcswj884ljMPvntwvF8FDgCWhZ-pVFnfm9BfjBb3tOr0Nma2B_odvZW-vIfsxTPdhQXnT_SIZ8IqiXSMj0UNlr57_NvQg_dkDa7H_YVUArIlSiHtnyPw950G78clo8yW-h&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Aishwarya Iyer
+                </p>
+                <p class="text-sm text-gray-600">26, Pune</p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            >
+              <div
+                class="aspect-[3/4] w-full bg-cover bg-center bg-no-repeat"
+                data-alt="Portrait of Karan Malhotra"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAerU_K5DnV9PC9ErYeR0KFY6U63D9uB9UalqH6uZ0giW5wWglQLRz2xb5prLRBV3ryhdMPAn6eHKt9kguQ0J_7Y707unX6KYejfo7DK9dQVu3v1JyECwpI3yJYmNzghpzRZrVwoPccbAgHDYagqQfnsF7rBhTiATYH0rrfZSjyIaujGlPMwYwq-F-dOOyrI7bGfPZvCt6gi6E2il9IpBVhw0S25Pdl_huBnpv_gu5MRR940tHMqBJSjrmWJ26wOqbXFK_QsQvLiDlJ&quot;);
+                "
+              ></div>
+              <div class="p-3">
+                <p class="truncate text-base font-semibold text-gray-900">
+                  Karan Malhotra
+                </p>
+                <p class="text-sm text-gray-600">33, Ahmedabad</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <button
+          class="fixed bottom-6 right-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-white shadow-lg transition-transform active:scale-95"
+        >
+          <span class="material-symbols-outlined text-3xl">add</span>
+        </button>
+        <footer
+          class="sticky bottom-0 z-10 border-t border-gray-200 bg-white py-2"
+        >
+          <div class="text-center text-xs text-gray-500">
+            <p>© 2024 Rishta by Aggarwal. All Rights Reserved.</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,162 +1,287 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Admin User Messages Viewer</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#FDAA84",
-            "secondary": "#FF80B7",
-            "tertiary": "#FFDE85",
-            "background-light": "#FFFFFF",
-            "background-dark": "#101922",
-          },
-          fontFamily: {
-            "display": ["Inter", "sans-serif"]
-          },
-          borderRadius: {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px"
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin User Messages Viewer</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FDAA84",
+              secondary: "#FF80B7",
+              tertiary: "#FFDE85",
+              "background-light": "#FFFFFF",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
           },
         },
-      },
-    }
-  </script>
-<style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      font-size: 24px;
-    }
-  </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+        font-size: 24px;
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background-light font-display">
-<div class="relative flex min-h-screen w-full flex-col">
-<div class="flex-1 pb-24">
-<!-- Header Bar -->
-<div class="sticky top-0 z-10 flex items-center bg-background-light p-4 justify-between border-b border-gray-200">
-<div class="flex size-10 shrink-0 items-center justify-center text-[#333333]">
-<span class="material-symbols-outlined">arrow_back_ios_new</span>
-</div>
-<h1 class="flex-1 text-center text-xl font-bold leading-tight tracking-tight text-[#333333]">User Messages</h1>
-<div class="w-10"></div>
-</div>
-<!-- Search Bar -->
-<div class="bg-background-light px-4 py-3">
-<label class="flex flex-col min-w-40 h-12 w-full">
-<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-<div class="text-primary flex border-none bg-primary/20 items-center justify-center pl-4 rounded-l-lg border-r-0">
-<span class="material-symbols-outlined">search</span>
-</div>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#333333] focus:outline-0 focus:ring-2 focus:ring-primary focus:ring-opacity-50 border-none bg-primary/20 h-full placeholder:text-primary/80 pl-2 text-base font-normal leading-normal" placeholder="Search by name, ID, or keyword..." value=""/>
-</div>
-</label>
-</div>
-<!-- Message List -->
-<div class="flex flex-col">
-<!-- List Item 1 -->
-<div class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100">
-<div class="flex items-start gap-4 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" data-alt="Avatar for Aishwarya Sharma" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBpBwqezTaS0pNjPQZFFseWUGkRahAEADXrCyVgFiIidY5MMPWtBaYOQ3CrNe7syGWAM53HBVCd18VdzL1yicnLh9O9tNMCtQJ2aAFdFjeEj2qigyMhQd3t3aexMAq5R1LN6xjEjSEQeHB2Aio7h1JBrtqEAOS_O-papmprsSfb85UUiMT7Z2o6Ed56367HK8Mq-_DiTvOJJJDsYEz_LA1wMO1K9jLKtuH_b7zei6PNrq6NxunHkaYJTHr_WxbZKW2IxRgDK5as3Z3H");'></div>
-<div class="flex flex-1 flex-col justify-center min-w-0">
-<div class="flex justify-between items-start">
-<p class="text-[#333333] text-base font-semibold leading-normal truncate">Aishwarya Sharma</p>
-<div class="flex items-center gap-2 shrink-0">
-<p class="text-gray-500 text-sm font-normal leading-normal">2h ago</p>
-<div class="w-2 h-2 rounded-full bg-secondary"></div>
-</div>
-</div>
-<p class="text-gray-600 text-sm font-normal leading-normal truncate mt-1">Hello, I am interested in learning more about your profile. It seems we share similar values.</p>
-<p class="text-gray-500 text-xs font-normal leading-normal mt-1">To: Rohan Mehra</p>
-</div>
-</div>
-</div>
-<!-- List Item 2 -->
-<div class="flex gap-4 bg-tertiary/20 px-4 py-4 border-b border-gray-100">
-<div class="flex items-start gap-4 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" data-alt="Avatar for Vikram Singh" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCji77ZK7copUSJXLzox9p3K6XRyG8Ky7gaFwvUhReok4mjLIFDf5hdHLAgi9jU--ZOaeTIV9GbL4qH0OJfZtOEEB-QuV83fKPXQWgKx4X8oucNtVXbh6hYJBrX8RnAqq6gCMOZ1ptVK4wPTPfz-FIgQDZf7KGvIB4OvtUwn1p1wpLmXhhczcYpDRHFA36DmKS4Cp1MjoAb5y2PFPO5Y7nTHzRhowag7rW6pqgVehZVLz6Ndvrowzdwh_O080wrlV33l7E_dSVofHZk");'></div>
-<div class="flex flex-1 flex-col justify-center min-w-0">
-<div class="flex justify-between items-start">
-<p class="text-[#333333] text-base font-semibold leading-normal truncate">Vikram Singh</p>
-<p class="text-gray-500 text-sm font-normal leading-normal shrink-0">1 day ago</p>
-</div>
-<p class="text-gray-600 text-sm font-normal leading-normal truncate mt-1">Your profile stood out to me. I'd like to connect and see if we're a good match.</p>
-<p class="text-gray-500 text-xs font-normal leading-normal mt-1">To: Priya Patel</p>
-</div>
-</div>
-</div>
-<!-- List Item 3 -->
-<div class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100">
-<div class="flex items-start gap-4 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" data-alt="Avatar for Neha Gupta" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC2EcYOHnlZ1EgqIDHIi7plcExEZEw_Jfe3kGGCTIF5IF-zXTAugtFk_X_fwcGDa8Bzk6tTmKPN2UrO1_h5tO5qfeNZAQXKVtNLvj3mjsCaCj-kJote0d4_qZyISTLHy-Mg9HT2Um0dFa3yM6dX0fOJja8EI5i3r2TK1ipJIecFtWH5e1Beietz5bytO1gXIel-vCf8ykWffgsyNb2W7m0pzdVn15lpBqmigU_nbzG9cUo9z8_SnXk5vAPfYf41XO9nL2JVgNdREaHU");'></div>
-<div class="flex flex-1 flex-col justify-center min-w-0">
-<div class="flex justify-between items-start">
-<p class="text-[#333333] text-base font-semibold leading-normal truncate">Neha Gupta</p>
-<p class="text-gray-500 text-sm font-normal leading-normal shrink-0">3 days ago</p>
-</div>
-<p class="text-gray-600 text-sm font-normal leading-normal truncate mt-1">I read your bio and was impressed by your interests in travel. Where have you been recently?</p>
-<p class="text-gray-500 text-xs font-normal leading-normal mt-1">To: Ankit Desai</p>
-</div>
-</div>
-</div>
-<!-- List Item 4 -->
-<div class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100">
-<div class="flex items-start gap-4 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" data-alt="Avatar for Arjun Kapoor" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDDRG7w355N5GnD3lzxUjDagSXwxSY0Cb-lsP3g5ty94tNV58CeQCiCb97AZHoW0wQMROzLJd-faIiQEx7ugjHmILsCy1fwOiCHV80JuB6vehpBf5lZPoIyaY8sDMpDRNbMH2_HE4g0rdDEeWME2vWxHPewDbSTv0SjX6JD9GqzWL3VvAXlveMDA-aM46X1w28qk36dJKZVCwmbpVeYvQXxorrsesJjvWoWsnXOx6Ftd96UAjnsPTy3ckRYBiqmaCPwoVmP6VIHLTjK");'></div>
-<div class="flex flex-1 flex-col justify-center min-w-0">
-<div class="flex justify-between items-start">
-<p class="text-[#333333] text-base font-semibold leading-normal truncate">Arjun Kapoor</p>
-<p class="text-gray-500 text-sm font-normal leading-normal shrink-0">5 days ago</p>
-</div>
-<p class="text-gray-600 text-sm font-normal leading-normal truncate mt-1">I saw we both graduated from the same university. Small world! I'd love to chat.</p>
-<p class="text-gray-500 text-xs font-normal leading-normal mt-1">To: Sneha Reddy</p>
-</div>
-</div>
-</div>
-<!-- Empty State Example (can be conditionally rendered) -->
-<!--
+  <body class="bg-background-light font-display">
+    <div class="relative flex min-h-screen w-full flex-col">
+      <div class="flex-1 pb-24">
+        <!-- Header Bar -->
+        <div
+          class="sticky top-0 z-10 flex items-center bg-background-light p-4 justify-between border-b border-gray-200"
+        >
+          <div
+            class="flex size-10 shrink-0 items-center justify-center text-[#333333]"
+          >
+            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+          </div>
+          <h1
+            class="flex-1 text-center text-xl font-bold leading-tight tracking-tight text-[#333333]"
+          >
+            User Messages
+          </h1>
+          <div class="w-10"></div>
+        </div>
+        <!-- Search Bar -->
+        <div class="bg-background-light px-4 py-3">
+          <label class="flex flex-col min-w-40 h-12 w-full">
+            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+              <div
+                class="text-primary flex border-none bg-primary/20 items-center justify-center pl-4 rounded-l-lg border-r-0"
+              >
+                <span class="material-symbols-outlined">search</span>
+              </div>
+              <input
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#333333] focus:outline-0 focus:ring-2 focus:ring-primary focus:ring-opacity-50 border-none bg-primary/20 h-full placeholder:text-primary/80 pl-2 text-base font-normal leading-normal"
+                placeholder="Search by name, ID, or keyword..."
+                value=""
+              />
+            </div>
+          </label>
+        </div>
+        <!-- Message List -->
+        <div class="flex flex-col">
+          <!-- List Item 1 -->
+          <div
+            class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100"
+          >
+            <div class="flex items-start gap-4 w-full">
+              <div
+                class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
+                data-alt="Avatar for Aishwarya Sharma"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBpBwqezTaS0pNjPQZFFseWUGkRahAEADXrCyVgFiIidY5MMPWtBaYOQ3CrNe7syGWAM53HBVCd18VdzL1yicnLh9O9tNMCtQJ2aAFdFjeEj2qigyMhQd3t3aexMAq5R1LN6xjEjSEQeHB2Aio7h1JBrtqEAOS_O-papmprsSfb85UUiMT7Z2o6Ed56367HK8Mq-_DiTvOJJJDsYEz_LA1wMO1K9jLKtuH_b7zei6PNrq6NxunHkaYJTHr_WxbZKW2IxRgDK5as3Z3H&quot;);
+                "
+              ></div>
+              <div class="flex flex-1 flex-col justify-center min-w-0">
+                <div class="flex justify-between items-start">
+                  <p
+                    class="text-[#333333] text-base font-semibold leading-normal truncate"
+                  >
+                    Aishwarya Sharma
+                  </p>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <p class="text-gray-500 text-sm font-normal leading-normal">
+                      2h ago
+                    </p>
+                    <div class="w-2 h-2 rounded-full bg-secondary"></div>
+                  </div>
+                </div>
+                <p
+                  class="text-gray-600 text-sm font-normal leading-normal truncate mt-1"
+                >
+                  Hello, I am interested in learning more about your profile. It
+                  seems we share similar values.
+                </p>
+                <p
+                  class="text-gray-500 text-xs font-normal leading-normal mt-1"
+                >
+                  To: Rohan Mehra
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- List Item 2 -->
+          <div
+            class="flex gap-4 bg-tertiary/20 px-4 py-4 border-b border-gray-100"
+          >
+            <div class="flex items-start gap-4 w-full">
+              <div
+                class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
+                data-alt="Avatar for Vikram Singh"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuCji77ZK7copUSJXLzox9p3K6XRyG8Ky7gaFwvUhReok4mjLIFDf5hdHLAgi9jU--ZOaeTIV9GbL4qH0OJfZtOEEB-QuV83fKPXQWgKx4X8oucNtVXbh6hYJBrX8RnAqq6gCMOZ1ptVK4wPTPfz-FIgQDZf7KGvIB4OvtUwn1p1wpLmXhhczcYpDRHFA36DmKS4Cp1MjoAb5y2PFPO5Y7nTHzRhowag7rW6pqgVehZVLz6Ndvrowzdwh_O080wrlV33l7E_dSVofHZk&quot;);
+                "
+              ></div>
+              <div class="flex flex-1 flex-col justify-center min-w-0">
+                <div class="flex justify-between items-start">
+                  <p
+                    class="text-[#333333] text-base font-semibold leading-normal truncate"
+                  >
+                    Vikram Singh
+                  </p>
+                  <p
+                    class="text-gray-500 text-sm font-normal leading-normal shrink-0"
+                  >
+                    1 day ago
+                  </p>
+                </div>
+                <p
+                  class="text-gray-600 text-sm font-normal leading-normal truncate mt-1"
+                >
+                  Your profile stood out to me. I'd like to connect and see if
+                  we're a good match.
+                </p>
+                <p
+                  class="text-gray-500 text-xs font-normal leading-normal mt-1"
+                >
+                  To: Priya Patel
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- List Item 3 -->
+          <div
+            class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100"
+          >
+            <div class="flex items-start gap-4 w-full">
+              <div
+                class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
+                data-alt="Avatar for Neha Gupta"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuC2EcYOHnlZ1EgqIDHIi7plcExEZEw_Jfe3kGGCTIF5IF-zXTAugtFk_X_fwcGDa8Bzk6tTmKPN2UrO1_h5tO5qfeNZAQXKVtNLvj3mjsCaCj-kJote0d4_qZyISTLHy-Mg9HT2Um0dFa3yM6dX0fOJja8EI5i3r2TK1ipJIecFtWH5e1Beietz5bytO1gXIel-vCf8ykWffgsyNb2W7m0pzdVn15lpBqmigU_nbzG9cUo9z8_SnXk5vAPfYf41XO9nL2JVgNdREaHU&quot;);
+                "
+              ></div>
+              <div class="flex flex-1 flex-col justify-center min-w-0">
+                <div class="flex justify-between items-start">
+                  <p
+                    class="text-[#333333] text-base font-semibold leading-normal truncate"
+                  >
+                    Neha Gupta
+                  </p>
+                  <p
+                    class="text-gray-500 text-sm font-normal leading-normal shrink-0"
+                  >
+                    3 days ago
+                  </p>
+                </div>
+                <p
+                  class="text-gray-600 text-sm font-normal leading-normal truncate mt-1"
+                >
+                  I read your bio and was impressed by your interests in travel.
+                  Where have you been recently?
+                </p>
+                <p
+                  class="text-gray-500 text-xs font-normal leading-normal mt-1"
+                >
+                  To: Ankit Desai
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- List Item 4 -->
+          <div
+            class="flex gap-4 bg-background-light px-4 py-4 border-b border-gray-100"
+          >
+            <div class="flex items-start gap-4 w-full">
+              <div
+                class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
+                data-alt="Avatar for Arjun Kapoor"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDDRG7w355N5GnD3lzxUjDagSXwxSY0Cb-lsP3g5ty94tNV58CeQCiCb97AZHoW0wQMROzLJd-faIiQEx7ugjHmILsCy1fwOiCHV80JuB6vehpBf5lZPoIyaY8sDMpDRNbMH2_HE4g0rdDEeWME2vWxHPewDbSTv0SjX6JD9GqzWL3VvAXlveMDA-aM46X1w28qk36dJKZVCwmbpVeYvQXxorrsesJjvWoWsnXOx6Ftd96UAjnsPTy3ckRYBiqmaCPwoVmP6VIHLTjK&quot;);
+                "
+              ></div>
+              <div class="flex flex-1 flex-col justify-center min-w-0">
+                <div class="flex justify-between items-start">
+                  <p
+                    class="text-[#333333] text-base font-semibold leading-normal truncate"
+                  >
+                    Arjun Kapoor
+                  </p>
+                  <p
+                    class="text-gray-500 text-sm font-normal leading-normal shrink-0"
+                  >
+                    5 days ago
+                  </p>
+                </div>
+                <p
+                  class="text-gray-600 text-sm font-normal leading-normal truncate mt-1"
+                >
+                  I saw we both graduated from the same university. Small world!
+                  I'd love to chat.
+                </p>
+                <p
+                  class="text-gray-500 text-xs font-normal leading-normal mt-1"
+                >
+                  To: Sneha Reddy
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Empty State Example (can be conditionally rendered) -->
+          <!--
         <div class="flex flex-col items-center justify-center text-center mt-20 px-4">
             <span class="material-symbols-outlined text-6xl text-gray-300">forum</span>
             <p class="text-[#333333] text-lg font-semibold mt-4">No Messages Found</p>
             <p class="text-gray-500 text-sm mt-1">When users send messages, they will appear here.</p>
         </div>
-        -->
-</div>
-</div>
-<!-- Footer Navigation -->
-<div class="fixed bottom-0 left-0 right-0 z-10 bg-background-light border-t border-gray-200">
-<div class="flex h-20 items-center justify-around px-4">
-<div class="flex flex-col items-center gap-1 text-gray-500">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="text-xs font-medium">Dashboard</span>
-</div>
-<div class="flex flex-col items-center gap-1 text-primary">
-<span class="material-symbols-outlined">mail</span>
-<span class="text-xs font-medium">Messages</span>
-</div>
-<div class="flex flex-col items-center gap-1 text-gray-500">
-<span class="material-symbols-outlined">group</span>
-<span class="text-xs font-medium">Users</span>
-</div>
-<div class="flex flex-col items-center gap-1 text-gray-500">
-<span class="material-symbols-outlined">settings</span>
-<span class="text-xs font-medium">Settings</span>
-</div>
-</div>
-</div>
-</div>
-</body></html>
+        --></div>
+      </div>
+      <!-- Footer Navigation -->
+      <div
+        class="fixed bottom-0 left-0 right-0 z-10 bg-background-light border-t border-gray-200"
+      >
+        <div class="flex h-20 items-center justify-around px-4">
+          <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="text-xs font-medium">Dashboard</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 text-primary">
+            <span class="material-symbols-outlined">mail</span>
+            <span class="text-xs font-medium">Messages</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="material-symbols-outlined">group</span>
+            <span class="text-xs font-medium">Users</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="text-xs font-medium">Settings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
