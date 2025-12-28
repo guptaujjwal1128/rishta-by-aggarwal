@@ -1,75 +1,139 @@
-# React + TypeScript + Vite
+# Rishta By Aggarwal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern matrimonial web application built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ⚡ Fast development with Vite HMR
+- 🎯 React Compiler enabled for optimized performance
+- 📱 Responsive design with Material-UI components
+- 🔒 Type-safe with TypeScript
+- 🧹 Production-grade ESLint configuration
+- ✨ Auto-formatting with Prettier
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- Node.js 20+
+- npm or yarn
 
-Note: This will impact Vite dev & build performances.
+## Installation
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Development Server
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Start the development server with hot module replacement:
+
+```bash
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`
+
+### Build
+
+Create an optimized production build:
+
+```bash
+npm run build
+```
+
+### Preview
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+### Linting
+
+Check code quality with ESLint:
+
+```bash
+npm run lint
+```
+
+Fix linting errors automatically:
+
+```bash
+npm run lint:fix
+```
+
+### Formatting
+
+Format code with Prettier:
+
+```bash
+npm run format
+```
+
+Check formatting without changes:
+
+```bash
+npm run format:check
+```
+
+### Testing
+
+Run tests:
+
+```bash
+npm run test
+```
+
+Watch mode for tests:
+
+```bash
+npm run test:watch
+```
+
+## Project Structure
+
+```
+src/
+├── App.tsx           # Main application component
+├── App.css           # Application styles
+├── main.tsx          # Entry point
+├── index.css         # Global styles
+└── assets/           # Static assets
+
+public/
+└── favicon.svg       # Application favicon
+```
+
+## Configuration Files
+
+- `vite.config.ts` - Vite configuration with React and compiler plugins
+- `tsconfig.json` - TypeScript configuration
+- `eslint.config.js` - Production-grade ESLint rules
+- `package.json` - Project dependencies and scripts
+
+## Technologies
+
+- **React 19** - Modern UI framework with latest features
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Material-UI** - Component library
+- **ESLint** - Code quality
+- **Prettier** - Code formatter
+- **React Compiler** - Performance optimization
+
+## Development Guidelines
+
+- Follow TypeScript best practices
+- Run lint before committing: `npm run lint -- --fix`
+- Format code: `npm run format`
+- Use meaningful commit messages
+
+## License
+
+See LICENSE file for details.
+
+## Author
+
+Ujjwal Gupta (guptaujjwal1128)
