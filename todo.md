@@ -1,6 +1,9 @@
 ## Micro
 
 - Enter values for domain and others in meta data in html
+- Determine whether about us page is required in addition to contact us
+- Add privacy policy
+- Add Success Stories Page
 
 ## Macro
 
