@@ -1,69 +1,61 @@
-const once = (fn) => {
-  let called = false;
-  return function (...args) {
-    if (!called) {
-      fn.apply(this, args);
-      called = true;
-    }
-  };
+const delay = async (ms) => {
+  return new Promise((res, rej) => {
+    setTimeout(function () {
+      res();
+    }, ms);
+  });
 };
 
-class EventEmitter {
-  #store;
-
-  constructor() {
-    this.#store = new Map();
+const fetchMilk = async (shouldSucceed) => {
+  await delay(300);
+  if (shouldSucceed) {
+    return "Milk Feteched";
+  } else {
+    throw new Error("failed");
   }
+};
 
-  on(eventName, callback) {
-    // implementation
-    if (this.#store.has(eventName)) {
-      const cbs = this.#store.get(eventName);
-      const updatedCbs = [...cbs, callback];
-      this.#store.set(eventName, updatedCbs);
-    } else {
-      this.#store.set(eventName, [callback]);
-    }
+const fetchSugar = async (shouldSucceed) => {
+  await delay(700);
+  if (shouldSucceed) {
+    return "Sugar Feteched";
+  } else {
+    throw new Error("failed");
   }
+};
 
-  once(eventName, callback) {
-    // implementation
-    const updatedCb = once(callback);
-    this.on(eventName, updatedCb);
+const fetchTea = async (shouldSucceed) => {
+  await delay(1200);
+  if (shouldSucceed) {
+    return "Tea Feteched";
+  } else {
+    throw new Error("failed");
   }
+};
 
-  off(eventName, callback) {
-    // implementation
-    if (this.#store.has(eventName)) {
-      const cbs = this.#store.get(eventName);
-      const updatedCbs = cbs.filter((cb) => cb !== callback);
-      this.#store.set(eventName, updatedCbs);
-      console.log(updatedCbs);
-    } else {
-      throw new Error("eventname does not exist");
-    }
+const makeTea = async () => {
+  try {
+    const milk = await fetchMilk(true);
+  } catch (e) {
+    throw new Error("Milk Failed");
   }
-
-  emit(eventName, ...args) {
-    // implementation
-    const cbs = this.#store.get(eventName) || [];
-    cbs.forEach((cb) => {
-      cb(...args);
-    });
+  try {
+    const sugar = await fetchSugar(false);
+  } catch (e) {
+    throw new Error("Sugar Failed");
   }
-}
+  try {
+    const tea = await fetchTea(true);
+  } catch (e) {
+    throw new Error("Tea Failed");
+  }
+  return "Tea is ready";
+};
 
-const emitter = new EventEmitter();
-
-const log1 = (...args) => console.log("logged", ...args);
-emitter.on("Hello", log1);
-emitter.emit("Hello", "Push all", "by Ujjwal");
-
-emitter.off("Hello", log1);
-emitter.emit("Hello", "Push all", "by Ujjwal");
-
-emitter.once("Hello once", log1);
-
-emitter.emit("Hello once", "once");
-emitter.emit("Hello once", "twice");
-emitter.emit("Hello once", "thrice");
+makeTea()
+  .then(() => {
+    console.log("Tea is ready");
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
