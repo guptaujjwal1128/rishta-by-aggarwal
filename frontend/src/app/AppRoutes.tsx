@@ -20,19 +20,23 @@ import Settings from "../pages/user/Settings";
 
 import RequireAuth from "../components/molecule/auth/RequireAuth";
 import RequireRole from "../components/molecule/auth/RequireRole";
+import { AppRoutes as AppRoutesEnum } from "../constants/routes";
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/** Public Routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/contact" element={<ContactUs />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path={AppRoutesEnum.HOME} element={<Home />} />
+      <Route path={AppRoutesEnum.CONTACT} element={<ContactUs />} />
+      <Route path={AppRoutesEnum.LOGIN} element={<Login />} />
+      <Route path={AppRoutesEnum.REGISTER} element={<Register />} />
 
       <Route element={<RequireAuth />}>
         {/** Admin Routes */}
-        <Route path="/admin" element={<RequireRole role="admin" />}>
+        <Route
+          path={AppRoutesEnum.ADMIN_ROOT}
+          element={<RequireRole role="admin" />}
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
@@ -42,9 +46,9 @@ const AppRoutes = () => {
         </Route>
 
         {/** User Routes */}
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path={AppRoutesEnum.DASHBOARD} element={<Dashboard />} />
+        <Route path={AppRoutesEnum.PROFILE} element={<Profile />} />
+        <Route path={AppRoutesEnum.SETTINGS} element={<Settings />} />
       </Route>
 
       {/* Default route for 404 */}

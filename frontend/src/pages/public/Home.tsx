@@ -1,7 +1,7 @@
 // NPM
 
 // Local
-import { PageContainer } from "../../styles/Layout.styled";
+import { PageContainer, PageContent } from "../../styles/Layout.styled";
 
 import Header from "../../components/molecule/layout/header/Header";
 import Footer from "../../components/molecule/layout/footer/Footer";
@@ -15,10 +15,14 @@ import { Divider } from "@mui/material";
 
 const Home = () => {
   return (
-    <PageContainer maxWidth="xl">
-      <Header />
-      <Divider />
-      <Banner />
+    <PageContainer>
+      <PageContent>
+        <Header />
+      </PageContent>
+      <PageContent noMaxWidth>
+        <Divider />
+        <Banner />
+      </PageContent>
       <HowItWorks />
       <PricingPlans />
       <SuccessStories />

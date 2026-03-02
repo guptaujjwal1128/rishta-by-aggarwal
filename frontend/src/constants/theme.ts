@@ -1,43 +1,6 @@
 import type { ThemeOptions } from "@mui/material/styles";
+import { BREAKPOINTS } from "./breakpoints";
 
-declare module "@mui/material/styles" {
-  interface Palette {
-    tertiary: Palette["primary"];
-    border: {
-      primary: string;
-      secondary: string;
-    };
-  }
-  interface PaletteOptions {
-    tertiary?: PaletteOptions["primary"];
-    border?: {
-      primary?: string;
-      secondary?: string;
-    };
-  }
-
-  interface TypographyVariants {
-    h1Bold: React.CSSProperties;
-    body1Bold: React.CSSProperties;
-    body2Bold: React.CSSProperties;
-    body3Bold: React.CSSProperties;
-  }
-  interface TypographyVariantsOptions {
-    h1Bold?: React.CSSProperties;
-    body1Bold?: React.CSSProperties;
-    body2Bold?: React.CSSProperties;
-    body3?: React.CSSProperties;
-  }
-}
-
-declare module "@mui/material/Typography" {
-  interface TypographyPropsVariantOverrides {
-    h1Bold: true;
-    body1Bold: true;
-    body2Bold: true;
-    body3Bold: true;
-  }
-}
 export const THEME_OPTIONS: ThemeOptions = {
   palette: {
     primary: {
@@ -53,8 +16,7 @@ export const THEME_OPTIONS: ThemeOptions = {
       primary: "#333333",
     },
     background: {
-      default: "#e5e7eb",
-      paper: "#fafafa",
+      default: "#FFFDFC",
     },
     // for actions like hover, selected, etc.
     action: {},
@@ -76,55 +38,90 @@ export const THEME_OPTIONS: ThemeOptions = {
   typography: {
     fontFamily: "Roboto, sans-serif",
     h1: {
-      fontSize: "2.25rem", // 36px
+      fontSize: "2rem", // 32px
       fontWeight: 700,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "3.5rem", // 56px
+      },
     },
     h1Bold: {
-      fontSize: "2.25rem", // 36px
+      fontSize: "2rem", // 32px
       fontWeight: 800,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "3.5rem", // 56px
+      },
     },
     h2: {
-      fontSize: "1.875rem", // 30px
+      fontSize: "1.75rem", // 28px
       fontWeight: 700,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "2.75rem", // 44px
+      },
     },
     h3: {
-      fontSize: "1.5rem", // 24px
+      fontSize: "1.375rem", // 22px
       fontWeight: 700,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "2rem", // 32px
+      },
     },
     h4: {
       fontSize: "1.25rem", // 20px
-      fontWeight: 700,
+      fontWeight: 600,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1.625rem", // 26px
+      },
     },
     h5: {
       fontSize: "1.125rem", // 18px
-      fontWeight: 700,
+      fontWeight: 600,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1.375rem", // 22px
+      },
     },
     body1: {
       fontSize: "1rem", // 16px
-      fontWeight: 400,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1.125rem", // 18px
+      },
     },
     body1Bold: {
       fontSize: "1rem", // 16px
-      fontWeight: 700,
+      fontWeight: 600,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1.125rem", // 18px
+      },
     },
     body2: {
       fontSize: "0.875rem", // 14px
-      fontWeight: 400,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1rem", // 16px
+      },
+    },
+    body2Bold: {
+      fontSize: "0.875rem", // 14px
+      fontWeight: 600,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "1rem", // 16px
+      },
     },
     body3: {
       fontSize: "0.75rem", // 12px
-      fontWeight: 400,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "0.875rem", // 14px
+      },
+    },
+    body3Bold: {
+      fontSize: "0.75rem", // 12px
+      fontWeight: 600,
+      [`@media (min-width:${BREAKPOINTS.md}px)`]: {
+        fontSize: "0.875rem", // 14px
+      },
     },
   },
   spacing: 8,
   breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
-    },
+    values: BREAKPOINTS,
   },
 
   // global adjustments
@@ -132,11 +129,6 @@ export const THEME_OPTIONS: ThemeOptions = {
     MuiButton: {
       defaultProps: {
         disableFocusRipple: true, // Move this here
-      },
-    },
-    MuiContainer: {
-      defaultProps: {
-        maxWidth: "xl",
       },
     },
   },

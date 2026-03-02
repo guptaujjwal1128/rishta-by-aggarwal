@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 ### GENERAL
 
 1. Organize imports in this order with a blank line between groups:
@@ -9,7 +13,10 @@
 
 3. Write concise comments only when necessary. Explain why, not what.
 
+4. Do precisely what has been told, don't make UI changes on your own.
+
 ### FRONTEND
+
 1. Follow project structure:
    src/app
    src/components

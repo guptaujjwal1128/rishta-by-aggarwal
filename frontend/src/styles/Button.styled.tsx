@@ -7,6 +7,7 @@ export const PrimaryButton = styled(Button)(({ theme }) => ({
   color: theme.palette.common.white,
   boxShadow: "none",
   backgroundColor: theme.palette.primary.main,
+  padding: ".5em 3em",
   "&:hover, &:focus": {
     backgroundColor: darken(theme.palette.primary.main, 0.1),
     boxShadow: "none",
