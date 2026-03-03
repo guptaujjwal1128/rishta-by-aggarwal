@@ -14,6 +14,7 @@ export const THEME_OPTIONS: ThemeOptions = {
     },
     text: {
       primary: "#333333",
+      secondary: "#6B7280",
     },
     background: {
       default: "#FFFDFC",
@@ -126,9 +127,24 @@ export const THEME_OPTIONS: ThemeOptions = {
 
   // global adjustments
   components: {
-    MuiButton: {
+    MuiList: {
       defaultProps: {
-        disableFocusRipple: true, // Move this here
+        disablePadding: true,
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+        },
+      },
+    },
+    MuiListItemAvatar: {
+      styleOverrides: {
+        root: {
+          minWidth: "auto",
+          marginRight: ".75rem",
+        },
       },
     },
   },

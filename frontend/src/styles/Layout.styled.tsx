@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, type BoxProps, styled } from "@mui/material";
 
 export const PageContainer = styled(Box)({
   height: "100vh",
@@ -8,7 +8,7 @@ export const PageContainer = styled(Box)({
   flexDirection: "column",
 });
 
-interface PageContentProps {
+interface PageContentProps extends BoxProps {
   noMaxWidth?: boolean;
 }
 

@@ -1,13 +1,16 @@
-// NPM
+// External
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 
-// Local
-import hero from "../../../../assets/hero.png";
+// Internal
+import hero from "../../../../assets/home/hero.png";
 import { Center } from "../../../../styles/Layout.styled";
-import { PrimaryButton } from "../../../../styles/Button.styled";
+import { PrimaryButton } from "../../../../components/atom/button/Button";
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
+import { TEXT } from "../../../../constants/TEXT";
+
+const { banner: bannerText } = TEXT;
 
 const Banner = () => {
   const theme = useTheme();
@@ -16,10 +19,14 @@ const Banner = () => {
 
   return (
     <Center
-      sx={{
+      sx={(theme) => ({
         position: "relative",
-        minHeight: "30rem",
-      }}
+        minHeight: theme.spacing(60),
+        [theme.breakpoints.down("sm")]: {
+          borderRadius: theme.spacing(2),
+          overflow: "hidden",
+        },
+      })}
     >
       {/* Layer 1: Base Clear Image */}
       <Box
@@ -66,7 +73,8 @@ const Banner = () => {
         justifyContent="center"
         sx={{
           position: "relative",
-          gap: 2,
+          gap: { xs: 3, lg: 6 },
+          padding: { xs: 2, lg: 6 },
         }}
       >
         <Typography
@@ -76,28 +84,35 @@ const Banner = () => {
             color: "common.white",
             textAlign: "center",
             textShadow: "0 4px 12px rgba(0,0,0,0.8)",
+            whiteSpace: "pre-wrap",
           }}
         >
-          Find Your Perfect Match with Trust and Care
+          {bannerText.heading}
         </Typography>
         <Typography
-          variant="body1"
+          variant="h5"
+          component="p"
           sx={{
             color: "common.white",
             textAlign: "center",
             textShadow: "0 4px 12px rgba(0,0,0,0.8)",
           }}
         >
-          Connecting hearts within the Aggarwal community for a lifetime of
-          happiness.
+          {bannerText.subheading}
         </Typography>
         <PrimaryButton
-          variant="contained"
+          sx={{
+            py: { xs: 1.5, md: 2 },
+            px: { xs: 4, md: 6 },
+            boxShadow: theme.shadows[4],
+          }}
           onClick={() => {
             void goTo(AppRoutes.REGISTER);
           }}
         >
-          <Typography variant="h3">Join Now</Typography>
+          <Typography variant="h4" component="p">
+            {bannerText.cta}
+          </Typography>
         </PrimaryButton>
       </Stack>
     </Center>

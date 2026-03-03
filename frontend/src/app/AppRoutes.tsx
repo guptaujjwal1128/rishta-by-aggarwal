@@ -12,6 +12,7 @@ import Register from "../pages/public/Register";
 import Home from "../pages/public/Home";
 import Login from "../pages/public/Login";
 import ContactUs from "../pages/public/ContactUs";
+import SuccessStories from "../pages/public/SuccessStories";
 import PageNotFound from "../pages/public/PageNotFound";
 
 import Dashboard from "../pages/user/Dashboard";
@@ -30,6 +31,10 @@ const AppRoutes = () => {
       <Route path={AppRoutesEnum.CONTACT} element={<ContactUs />} />
       <Route path={AppRoutesEnum.LOGIN} element={<Login />} />
       <Route path={AppRoutesEnum.REGISTER} element={<Register />} />
+      <Route
+        path={AppRoutesEnum.SUCCESS_STORIES}
+        element={<SuccessStories />}
+      />
 
       <Route element={<RequireAuth />}>
         {/** Admin Routes */}
