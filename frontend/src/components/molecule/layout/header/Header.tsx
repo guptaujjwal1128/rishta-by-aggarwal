@@ -1,5 +1,5 @@
 // External
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -7,10 +7,10 @@ import {
 } from "../../../../components/atom/button/Button";
 
 // Internal
-import banner from "../../../../assets/banner.png";
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
 import { TEXT } from "../../../../constants/TEXT";
+import { ASSETS } from "../../../../constants/ASSETS";
 
 const { header } = TEXT;
 
@@ -27,13 +27,14 @@ const Header = () => {
       width="100%"
     >
       <TextButton
+        component="a"
         onClick={() => {
           void goTo(AppRoutes.HOME);
         }}
       >
         <Box
           component="img"
-          src={banner}
+          src={ASSETS.common.banner}
           alt=""
           height={{ xs: 30, md: 40 }}
           width={{ xs: 30, md: 40 }}
@@ -42,8 +43,14 @@ const Header = () => {
           {header.brandName}
         </Typography>
       </TextButton>
-      <Stack direction="row" alignItems="center" sx={{ gap: { xs: 1, md: 2 } }}>
+      <Stack
+        component="nav"
+        direction="row"
+        alignItems="center"
+        sx={{ gap: { xs: 1, md: 2 } }}
+      >
         <SecondaryButton
+          component="a"
           onClick={() => {
             void goTo(AppRoutes.LOGIN);
           }}
@@ -51,6 +58,7 @@ const Header = () => {
           <Typography variant="body2Bold">{header.login}</Typography>
         </SecondaryButton>
         <PrimaryButton
+          component="a"
           onClick={() => {
             void goTo(AppRoutes.REGISTER);
           }}

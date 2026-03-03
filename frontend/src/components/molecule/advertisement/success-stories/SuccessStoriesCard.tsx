@@ -1,5 +1,4 @@
-// External
-import { Avatar, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 // Internal
 import { Center } from "../../../../styles/Layout.styled";
@@ -7,56 +6,54 @@ import { Center } from "../../../../styles/Layout.styled";
 export interface SuccessStoriesCardProps {
   quote: string;
   name: string;
-  initials: string;
+  image: string;
 }
 
 const SuccessStoriesCard = ({
   quote,
   name,
-  initials,
+  image,
 }: SuccessStoriesCardProps) => {
   return (
     <Center
       sx={(theme) => ({
         flex: 1,
-        gap: 2,
         flexDirection: "column",
-        alignItems: "flex-start",
-        p: 3,
         border: `1px solid ${theme.palette.border.primary}`,
         borderRadius: theme.spacing(2),
         backgroundColor: theme.palette.background.paper,
       })}
     >
-      {/* Quote mark */}
-      <Typography
-        variant="h2"
-        component="span"
-        color="primary"
-        sx={{ lineHeight: 0.8, mt: 0.5 }}
-      >
-        "
-      </Typography>
+      {/* Couple Image */}
+      <Box
+        component="img"
+        src={image}
+        alt={name}
+        sx={(theme) => ({
+          width: "100%",
+          aspectRatio: "1.5/1",
+          objectFit: "cover",
+          borderRadius: `${theme.spacing(2)} ${theme.spacing(2)} 0 0`,
+        })}
+      />
 
-      {/* Quote text */}
-      <Typography variant="body1" component="p" color="text.secondary">
-        {quote}
-      </Typography>
+      <Box sx={{ p: 3 }}>
+        {/* Quote text */}
+        <Typography variant="body1" component="p" color="text.secondary">
+          "{quote}"
+        </Typography>
 
-      {/* Attribution */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: "auto" }}>
-        <Avatar
-          sx={(theme) => ({
-            bgcolor: theme.palette.primary.main,
-            width: 40,
-            height: 40,
-          })}
+        {/* Attribution */}
+        <Typography
+          sx={{
+            width: "100%",
+            color: "text.primary",
+            textAlign: "right",
+            pt: 0.5,
+          }}
+          variant="body2Bold"
+          component="p"
         >
-          <Typography variant="body2Bold" color="common.white">
-            {initials}
-          </Typography>
-        </Avatar>
-        <Typography variant="body2Bold" component="p" color="text.primary">
           — {name}
         </Typography>
       </Box>

@@ -1,8 +1,8 @@
 // External
-import { alpha, Box, Divider } from "@mui/material";
+import { alpha, Divider } from "@mui/material";
 
 // Internal
-import { PageContainer, PageContent } from "../../styles/Layout.styled";
+import { ContentContainer, Content } from "../../styles/Layout.styled";
 import Header from "../../components/molecule/layout/header/Header";
 import Footer from "../../components/molecule/layout/footer/Footer";
 import Banner from "../../components/molecule/advertisement/banner/Banner";
@@ -14,59 +14,67 @@ import FAQ from "../../components/molecule/advertisement/faq/FAQ";
 
 const Home = () => {
   return (
-    <PageContainer>
-      <PageContent component="header" sx={{ py: 1, px: 2 }}>
+    <ContentContainer>
+      <Content component="header" sx={{ py: 1, px: 2 }}>
         <Header />
-      </PageContent>
-      <PageContent>
+      </Content>
+      <Content>
         <Divider />
-      </PageContent>
-      <Box component="main">
-        <PageContent component="section" sx={{ p: { xs: 2, sm: 0 } }}>
+      </Content>
+      <ContentContainer component="main">
+        <Content noMaxWidth component="section" sx={{ p: { xs: 2, sm: 0 } }}>
           <Banner />
-        </PageContent>
-        <PageContent
+        </Content>
+        <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
         >
           <HowItWorks />
-        </PageContent>
-        <PageContent
+        </Content>
+        <ContentContainer
           component="section"
           sx={(theme) => ({
-            py: { xs: 4, sm: 6 },
-            px: { xs: 2, sm: 4 },
             backgroundColor: alpha(theme.palette.primary.main, 0.1),
           })}
         >
-          <PricingPlans />
-        </PageContent>
-        <PageContent
+          <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+            <PricingPlans />
+          </Content>
+        </ContentContainer>
+        <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
         >
           <SuccessStories />
-        </PageContent>
-        <PageContent
+        </Content>
+        <ContentContainer
           component="section"
-          sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+          sx={(theme) => ({
+            backgroundColor: alpha(theme.palette.tertiary.main, 0.1),
+          })}
         >
-          <WhyChooseUs />
-        </PageContent>
-        <PageContent
+          <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+            <WhyChooseUs />
+          </Content>
+        </ContentContainer>
+        <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
         >
           <FAQ />
-        </PageContent>
-      </Box>
-      <PageContent
+        </Content>
+      </ContentContainer>
+      <ContentContainer
         component="footer"
-        sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+        sx={(theme) => ({
+          backgroundColor: theme.palette.background.tertiary,
+        })}
       >
-        <Footer />
-      </PageContent>
-    </PageContainer>
+        <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+          <Footer />
+        </Content>
+      </ContentContainer>
+    </ContentContainer>
   );
 };
 

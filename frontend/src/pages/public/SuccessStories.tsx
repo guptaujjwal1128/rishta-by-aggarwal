@@ -2,34 +2,34 @@
 import { Divider } from "@mui/material";
 
 // Internal
-import { PageContainer, PageContent } from "../../styles/Layout.styled";
+import { ContentContainer, Content } from "../../styles/Layout.styled";
 import Header from "../../components/molecule/layout/header/Header";
 import Footer from "../../components/molecule/layout/footer/Footer";
-import SuccessStoriesMolecule from "../../components/molecule/advertisement/success-stories/SuccessStories";
+import SuccessStories from "../../components/molecule/advertisement/success-stories/SuccessStories";
 
-const SuccessStories = () => {
+const SuccessStoriesPage = () => {
   return (
-    <PageContainer>
-      <PageContent component="header" sx={{ py: 1, px: 2 }}>
+    <ContentContainer>
+      <Content component="header" sx={{ py: 1, px: 2 }}>
         <Header />
-      </PageContent>
-      <PageContent>
+      </Content>
+      <Content>
         <Divider />
-      </PageContent>
-      <PageContent
+      </Content>
+      <Content
         component="main"
         sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
       >
-        <SuccessStoriesMolecule />
-      </PageContent>
-      <PageContent
+        <SuccessStories />
+      </Content>
+      <Content
         component="footer"
         sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
       >
         <Footer />
-      </PageContent>
-    </PageContainer>
+      </Content>
+    </ContentContainer>
   );
 };
 
-export default SuccessStories;
+export default SuccessStoriesPage;

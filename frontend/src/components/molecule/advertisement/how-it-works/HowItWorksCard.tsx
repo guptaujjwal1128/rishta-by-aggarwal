@@ -21,7 +21,7 @@ const HowItWorksCard = ({
         flex: 1,
         gap: 2,
         flexDirection: "column",
-        p: 2,
+        p: 3,
         border: `1px solid ${theme.palette.border.primary}`,
         borderRadius: theme.spacing(2),
       })}

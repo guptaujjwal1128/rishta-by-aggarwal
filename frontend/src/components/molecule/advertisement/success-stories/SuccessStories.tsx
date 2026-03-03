@@ -6,8 +6,11 @@ import SuccessStoriesCard from "./SuccessStoriesCard";
 import { TEXT } from "../../../../constants/TEXT";
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
+import { ASSETS } from "../../../../constants/ASSETS";
 
-const { successStories } = TEXT;
+const {
+  home: { successStories },
+} = TEXT;
 
 const SuccessStories = () => {
   const { goTo } = useNavigation();
@@ -37,11 +40,16 @@ const SuccessStories = () => {
           },
         })}
       >
-        {successStories.stories.map((story) => (
-          <SuccessStoriesCard key={story.name} {...story} />
+        {successStories.stories.map((story, index) => (
+          <SuccessStoriesCard
+            key={story.name}
+            image={ASSETS.home.successStories[index]}
+            {...story}
+          />
         ))}
       </Stack>
       <Typography
+        tabIndex={0}
         variant="body1Bold"
         component="a"
         color="primary"

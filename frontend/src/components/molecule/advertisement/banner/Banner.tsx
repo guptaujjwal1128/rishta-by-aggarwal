@@ -3,14 +3,16 @@ import { Box, Stack, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 
 // Internal
-import hero from "../../../../assets/home/hero.png";
 import { Center } from "../../../../styles/Layout.styled";
 import { PrimaryButton } from "../../../../components/atom/button/Button";
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
 import { TEXT } from "../../../../constants/TEXT";
+import { ASSETS } from "../../../../constants/ASSETS";
 
-const { banner: bannerText } = TEXT;
+const {
+  home: { banner: bannerText },
+} = TEXT;
 
 const Banner = () => {
   const theme = useTheme();
@@ -33,7 +35,7 @@ const Banner = () => {
         sx={{
           position: "absolute",
           inset: 0,
-          backgroundImage: `url(${hero})`,
+          backgroundImage: `url(${ASSETS.home.hero})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -45,7 +47,7 @@ const Banner = () => {
           sx={{
             position: "absolute",
             inset: 0,
-            backgroundImage: `url(${hero})`,
+            backgroundImage: `url(${ASSETS.home.hero})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             filter: "blur(6px)",
@@ -101,6 +103,8 @@ const Banner = () => {
           {bannerText.subheading}
         </Typography>
         <PrimaryButton
+          component="a"
+          href={AppRoutes.REGISTER}
           sx={{
             py: { xs: 1.5, md: 2 },
             px: { xs: 4, md: 6 },

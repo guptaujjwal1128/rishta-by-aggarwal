@@ -3,14 +3,14 @@ import { Box, Stack, Typography } from "@mui/material";
 
 // Internal
 import HowItWorksCard from "./HowItWorksCard";
-import howItWorks1 from "../../../../assets/home/howItWorks1.png";
-import howItWorks2 from "../../../../assets/home/howItWorks2.png";
-import howItWorks3 from "../../../../assets/home/howItWorks3.png";
 import { TEXT } from "../../../../constants/TEXT";
+import { ASSETS } from "../../../../constants/ASSETS";
 
-const { howItWorks } = TEXT;
+const {
+  home: { howItWorks },
+} = TEXT;
 
-const iconUrls = [howItWorks1, howItWorks2, howItWorks3];
+const iconUrls = ASSETS.home.howItWorks;
 
 const HowItWorks = () => {
   return (

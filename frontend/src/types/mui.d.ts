@@ -1,6 +1,10 @@
 import React from "react";
 
 declare module "@mui/material/styles" {
+  interface TypeBackground {
+    tertiary: string;
+  }
+
   interface Palette {
     tertiary: Palette["primary"];
     border: {

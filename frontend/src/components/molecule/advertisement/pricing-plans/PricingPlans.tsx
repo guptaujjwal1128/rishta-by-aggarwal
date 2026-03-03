@@ -5,7 +5,9 @@ import { Box, Stack, Typography } from "@mui/material";
 import PricingPlansCard from "./PricingPlansCard";
 import { TEXT } from "../../../../constants/TEXT";
 
-const { pricingPlans } = TEXT;
+const {
+  home: { pricingPlans },
+} = TEXT;
 
 const PricingPlans = () => {
   return (

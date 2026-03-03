@@ -18,6 +18,8 @@ export const THEME_OPTIONS: ThemeOptions = {
     },
     background: {
       default: "#FFFDFC",
+      paper: "#FAFAFA",
+      tertiary: "#F3F4F6",
     },
     // for actions like hover, selected, etc.
     action: {},
@@ -127,6 +129,17 @@ export const THEME_OPTIONS: ThemeOptions = {
 
   // global adjustments
   components: {
+    MuiAccordion: {
+      defaultProps: {
+        disableGutters: true,
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          "&:before": { display: "none" },
+        },
+      },
+    },
     MuiList: {
       defaultProps: {
         disablePadding: true,
@@ -144,6 +157,14 @@ export const THEME_OPTIONS: ThemeOptions = {
         root: {
           minWidth: "auto",
           marginRight: ".75rem",
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          cursor: "pointer",
+          textDecoration: "none",
         },
       },
     },

@@ -11,11 +11,10 @@ import {
 
 //Internal
 import { Center } from "../../../../styles/Layout.styled";
-import tickIcon from "../../../../assets/home/pricingPlanIconTick.png";
-import crossIcon from "../../../../assets/home/pricingPlanIconCross.png";
 import { TEXT } from "../../../../constants/TEXT";
+import { ASSETS } from "../../../../constants/ASSETS";
 
-const { mostPopularLabel } = TEXT.pricingPlans;
+const { mostPopularLabel } = TEXT.home.pricingPlans;
 
 export interface PricingPlansCardProps {
   title: string;
@@ -37,7 +36,7 @@ const PricingPlansCard = ({
         flex: 1,
         gap: 2,
         flexDirection: "column",
-        p: 2,
+        p: 3,
         border: `1px solid ${theme.palette.border.primary}`,
         borderRadius: theme.spacing(2),
         backgroundColor: theme.palette.background.paper,
@@ -88,7 +87,11 @@ const PricingPlansCard = ({
           <ListItem key={index}>
             <ListItemAvatar>
               <Avatar
-                src={feature.isAvailable ? tickIcon : crossIcon}
+                src={
+                  feature.isAvailable
+                    ? ASSETS.home.pricing.tick
+                    : ASSETS.home.pricing.cross
+                }
                 sx={{
                   width: 20,
                   height: 20,
