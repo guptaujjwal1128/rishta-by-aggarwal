@@ -10,10 +10,10 @@ const FOOTER_TEXT = {
   brandName: "Rishta by Aggarwal",
   tagline: "Your trusted partner in the journey to find a lifelong companion.",
   links: [
+    { label: "Login", path: AppRoutes.LOGIN },
+    { label: "Register", path: AppRoutes.REGISTER },
     { label: "Contact", path: AppRoutes.CONTACT },
-    { label: "Contact", path: AppRoutes.CONTACT },
-    { label: "Contact", path: AppRoutes.CONTACT },
-    { label: "Contact", path: AppRoutes.CONTACT },
+    { label: "Success Stories", path: AppRoutes.SUCCESS_STORIES },
   ],
   copyright: "© 2024 Rishta by Aggarwal. All Rights Reserved.",
 };

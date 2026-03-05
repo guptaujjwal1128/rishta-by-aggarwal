@@ -1,5 +1,5 @@
 // External
-import { Typography, Stack, Grid, Box } from "@mui/material";
+import { Typography, Stack, Grid } from "@mui/material";
 
 // Internal
 import { TEXT } from "../../../../constants/TEXT";

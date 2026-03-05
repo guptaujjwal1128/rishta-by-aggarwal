@@ -1,7 +1,4 @@
-import { Box, Typography } from "@mui/material";
-
-// Internal
-import { Center } from "../../../../styles/Layout.styled";
+import { Box, Stack, Typography } from "@mui/material";
 
 export interface SuccessStoriesCardProps {
   quote: string;
@@ -15,7 +12,7 @@ const SuccessStoriesCard = ({
   image,
 }: SuccessStoriesCardProps) => {
   return (
-    <Center
+    <Stack
       sx={(theme) => ({
         flex: 1,
         flexDirection: "column",
@@ -30,13 +27,12 @@ const SuccessStoriesCard = ({
         src={image}
         alt={name}
         sx={(theme) => ({
+          height: "20rem",
           width: "100%",
-          aspectRatio: "1.5/1",
           objectFit: "cover",
           borderRadius: `${theme.spacing(2)} ${theme.spacing(2)} 0 0`,
         })}
       />
-
       <Box sx={{ p: 3 }}>
         {/* Quote text */}
         <Typography variant="body1" component="p" color="text.secondary">
@@ -57,7 +53,7 @@ const SuccessStoriesCard = ({
           — {name}
         </Typography>
       </Box>
-    </Center>
+    </Stack>
   );
 };
 

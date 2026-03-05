@@ -1,11 +1,12 @@
 // External
-import { Typography, Link, Grid } from "@mui/material";
+import { Typography, Grid } from "@mui/material";
 import { Facebook, Instagram, X } from "@mui/icons-material";
+import { NavLink } from "react-router";
 
 // Internal
 import { TEXT } from "../../../../constants/TEXT";
 import { Center } from "../../../../styles/Layout.styled";
-import { NavLink } from "react-router";
+import { AppRoutes } from "../../../../constants/routes";
 
 const { footer } = TEXT;
 
@@ -22,14 +23,17 @@ const Footer = () => {
           gap={2}
           size={{ xs: 12, md: 4 }}
         >
-          <Typography
-            variant="h4"
-            component="p"
-            color="text.primary"
-            textAlign="center"
-          >
-            {footer.brandName}
-          </Typography>
+          <NavLink className="link-styling" to={AppRoutes.HOME}>
+            <Typography
+              variant="h4"
+              component="p"
+              color="text.primary"
+              textAlign="center"
+              sx={{ "&:hover": { opacity: 0.8 } }}
+            >
+              {footer.brandName}
+            </Typography>
+          </NavLink>
           <Typography variant="body2" textAlign="center" color="text.secondary">
             {footer.tagline}
           </Typography>
@@ -47,18 +51,11 @@ const Footer = () => {
           }}
         >
           {footer.links.map((link) => (
-            <Link
-              component={NavLink}
-              to={link.path}
-              tabIndex={0}
-              key={link.label}
-              alignItems="center"
-              justifyContent="center"
-            >
+            <NavLink className="link-styling" key={link.label} to={link.path}>
               <Typography variant="body2Bold" color="text.primary">
                 {link.label}
               </Typography>
-            </Link>
+            </NavLink>
           ))}
         </Grid>
         {/* social links */}
@@ -72,15 +69,20 @@ const Footer = () => {
             justifyContent: "center",
           }}
         >
-          <Link href="#" aria-label="facebook">
+          <NavLink className="link-styling" to="#" aria-label="facebook">
             <Facebook sx={{ color: "text.secondary" }} />
-          </Link>
-          <Link href="#" aria-label="instagram">
+          </NavLink>
+          <NavLink className="link-styling" to="#" aria-label="instagram">
             <Instagram sx={{ color: "text.secondary" }} />
-          </Link>
-          <Link href="#" aria-label="x" aria-description="twitter">
+          </NavLink>
+          <NavLink
+            className="link-styling"
+            to="#"
+            aria-label="x"
+            aria-description="twitter"
+          >
             <X sx={{ color: "text.secondary" }} />
-          </Link>
+          </NavLink>
         </Grid>
       </Grid>
       {/* copyright */}

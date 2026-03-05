@@ -1,10 +1,10 @@
 // External
 import { Box, Stack, Typography } from "@mui/material";
+import { NavLink } from "react-router";
 
 // Internal
 import SuccessStoriesCard from "./SuccessStoriesCard";
 import { TEXT } from "../../../../constants/TEXT";
-import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
 import { ASSETS } from "../../../../constants/ASSETS";
 
@@ -13,13 +13,12 @@ const {
 } = TEXT;
 
 const SuccessStories = () => {
-  const { goTo } = useNavigation();
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "stretch",
+        alignItems: "center",
         gap: 3,
       }}
     >
@@ -48,19 +47,11 @@ const SuccessStories = () => {
           />
         ))}
       </Stack>
-      <Typography
-        tabIndex={0}
-        variant="body1Bold"
-        component="a"
-        color="primary"
-        textAlign="center"
-        sx={{ cursor: "pointer", textDecoration: "none" }}
-        onClick={() => {
-          void goTo(AppRoutes.SUCCESS_STORIES);
-        }}
-      >
-        {successStories.viewAllLabel}
-      </Typography>
+      <NavLink className="link-styling" to={AppRoutes.SUCCESS_STORIES}>
+        <Typography variant="body1Bold" color="primary">
+          {successStories.viewAllLabel}
+        </Typography>
+      </NavLink>
     </Box>
   );
 };

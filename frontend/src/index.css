@@ -1,3 +1,9 @@
 html {
   scroll-behavior: smooth;
 }
+.link-styling {
+  text-decoration: none;
+  &:hover {
+    opacity: 0.8;
+  }
+}

@@ -1,17 +1,16 @@
 // External
-import { Box, Link, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import {
   PrimaryButton,
   SecondaryButton,
-  TextButton,
 } from "../../../../components/atom/button/Button";
+import { NavLink } from "react-router";
 
 // Internal
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
 import { TEXT } from "../../../../constants/TEXT";
 import { ASSETS } from "../../../../constants/ASSETS";
-
 const { header } = TEXT;
 
 const Header = () => {
@@ -26,23 +25,20 @@ const Header = () => {
       maxWidth="xl"
       width="100%"
     >
-      <TextButton
-        component="a"
-        onClick={() => {
-          void goTo(AppRoutes.HOME);
-        }}
-      >
-        <Box
-          component="img"
-          src={ASSETS.common.banner}
-          alt=""
-          height={{ xs: 30, md: 40 }}
-          width={{ xs: 30, md: 40 }}
-        />
-        <Typography variant="h5" component="h1" color="primary">
-          {header.brandName}
-        </Typography>
-      </TextButton>
+      <NavLink className="link-styling" to={AppRoutes.HOME}>
+        <Stack direction="row" alignItems="center">
+          <Box
+            component="img"
+            src={ASSETS.common.banner}
+            alt=""
+            height={{ xs: 30, md: 40 }}
+            width={{ xs: 30, md: 40 }}
+          />
+          <Typography variant="h5" component="h1" color="primary">
+            {header.brandName}
+          </Typography>
+        </Stack>
+      </NavLink>
       <Stack
         component="nav"
         direction="row"

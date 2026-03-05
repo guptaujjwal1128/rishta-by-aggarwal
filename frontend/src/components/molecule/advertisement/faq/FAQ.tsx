@@ -1,12 +1,5 @@
 // External
-import {
-  Stack,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { Stack, Typography } from "@mui/material";
 
 // Internal
 import { TEXT } from "../../../../constants/TEXT";

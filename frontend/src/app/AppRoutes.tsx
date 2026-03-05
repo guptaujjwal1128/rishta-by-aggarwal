@@ -1,5 +1,6 @@
 // NPM
-import { Routes, Route } from "react-router";
+import { Routes, Route, useLocation } from "react-router";
+import { useEffect } from "react";
 
 // Local
 import AdminDashboard from "../pages/admin/AdminDashboard";
@@ -23,42 +24,53 @@ import RequireAuth from "../components/molecule/auth/RequireAuth";
 import RequireRole from "../components/molecule/auth/RequireRole";
 import { AppRoutes as AppRoutesEnum } from "../constants/routes";
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const AppRoutes = () => {
   return (
-    <Routes>
-      {/** Public Routes */}
-      <Route path={AppRoutesEnum.HOME} element={<Home />} />
-      <Route path={AppRoutesEnum.CONTACT} element={<ContactUs />} />
-      <Route path={AppRoutesEnum.LOGIN} element={<Login />} />
-      <Route path={AppRoutesEnum.REGISTER} element={<Register />} />
-      <Route
-        path={AppRoutesEnum.SUCCESS_STORIES}
-        element={<SuccessStories />}
-      />
-
-      <Route element={<RequireAuth />}>
-        {/** Admin Routes */}
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/** Public Routes */}
+        <Route path={AppRoutesEnum.HOME} element={<Home />} />
+        <Route path={AppRoutesEnum.CONTACT} element={<ContactUs />} />
+        <Route path={AppRoutesEnum.LOGIN} element={<Login />} />
+        <Route path={AppRoutesEnum.REGISTER} element={<Register />} />
         <Route
-          path={AppRoutesEnum.ADMIN_ROOT}
-          element={<RequireRole role="admin" />}
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="users/:id" element={<UserDetails />} />
-          <Route path="queries" element={<Queries />} />
-          <Route path="settings" element={<AdminSettings />} />
+          path={AppRoutesEnum.SUCCESS_STORIES}
+          element={<SuccessStories />}
+        />
+
+        <Route element={<RequireAuth />}>
+          {/** Admin Routes */}
+          <Route
+            path={AppRoutesEnum.ADMIN_ROOT}
+            element={<RequireRole role="admin" />}
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="users/:id" element={<UserDetails />} />
+            <Route path="queries" element={<Queries />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+
+          {/** User Routes */}
+          <Route path={AppRoutesEnum.DASHBOARD} element={<Dashboard />} />
+          <Route path={AppRoutesEnum.PROFILE} element={<Profile />} />
+          <Route path={AppRoutesEnum.SETTINGS} element={<Settings />} />
         </Route>
 
-        {/** User Routes */}
-        <Route path={AppRoutesEnum.DASHBOARD} element={<Dashboard />} />
-        <Route path={AppRoutesEnum.PROFILE} element={<Profile />} />
-        <Route path={AppRoutesEnum.SETTINGS} element={<Settings />} />
-      </Route>
-
-      {/* Default route for 404 */}
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+        {/* Default route for 404 */}
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </>
   );
 };
 

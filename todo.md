@@ -23,6 +23,7 @@
 - Image optimisation:
   - for static assets, optimise using vite duing build
   - load low quality image first and then high quality image
+  - apply css sprite for social icons
 
 ### Cross Browser Testing
 
