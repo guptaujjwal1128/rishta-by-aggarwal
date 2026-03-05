@@ -4,7 +4,7 @@ import { BREAKPOINTS } from "./breakpoints";
 export const THEME_OPTIONS: ThemeOptions = {
   palette: {
     primary: {
-      main: "#fdaa84",
+      main: "#FD9667",
     },
     secondary: {
       main: "#ff80b7",
@@ -14,7 +14,7 @@ export const THEME_OPTIONS: ThemeOptions = {
     },
     text: {
       primary: "#333333",
-      secondary: "#6B7280",
+      secondary: "#636A77",
     },
     background: {
       default: "#FFFDFC",

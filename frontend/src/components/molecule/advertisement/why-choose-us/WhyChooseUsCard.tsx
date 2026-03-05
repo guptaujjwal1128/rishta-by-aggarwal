@@ -19,22 +19,15 @@ const WhyChooseUsCard = ({
       <Stack direction="row" alignItems="center" gap={1.5}>
         <Box
           sx={{
-            height: 20,
-            width: 20,
+            height: 18,
+            width: 18,
+            objectFit: "contain",
           }}
-        >
-          <Box
-            sx={{
-              height: 16,
-              maxWidth: 20,
-              objectFit: "contain",
-            }}
-            src={icon}
-            alt=""
-            component="img"
-            loading="lazy"
-          ></Box>
-        </Box>
+          src={icon}
+          alt=""
+          component="img"
+          loading="lazy"
+        ></Box>
         <Typography variant="body1Bold" color="text.primary">
           {title}
         </Typography>

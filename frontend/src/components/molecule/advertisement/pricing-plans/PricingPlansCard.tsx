@@ -87,7 +87,12 @@ const PricingPlansCard = ({
           <ListItem key={index}>
             <ListItemAvatar>
               <Avatar
-                slotProps={{ img: { loading: "lazy" } }}
+                slotProps={{
+                  img: {
+                    loading: "lazy",
+                  },
+                }}
+                alt={feature.isAvailable ? "tick icon" : "cross icon"}
                 src={
                   feature.isAvailable
                     ? ASSETS.home.pricing.tick
