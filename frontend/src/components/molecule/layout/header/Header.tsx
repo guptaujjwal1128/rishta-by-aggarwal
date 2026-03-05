@@ -26,7 +26,7 @@ const Header = () => {
       width="100%"
     >
       <NavLink className="link-styling" to={AppRoutes.HOME}>
-        <Stack direction="row" alignItems="center">
+        <Stack direction="row" alignItems="center" gap={0.5}>
           <Box
             component="img"
             src={ASSETS.common.banner}

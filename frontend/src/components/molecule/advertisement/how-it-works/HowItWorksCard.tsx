@@ -26,7 +26,12 @@ const HowItWorksCard = ({
         borderRadius: theme.spacing(2),
       })}
     >
-      <Avatar src={iconUrl} alt="" sx={{ width: 48, height: 48 }}></Avatar>
+      <Avatar
+        slotProps={{ img: { loading: "lazy" } }}
+        src={iconUrl}
+        alt=""
+        sx={{ width: 48, height: 48 }}
+      ></Avatar>
       <Typography variant="body1Bold" component="h3" color="text.primary">
         {title}
       </Typography>

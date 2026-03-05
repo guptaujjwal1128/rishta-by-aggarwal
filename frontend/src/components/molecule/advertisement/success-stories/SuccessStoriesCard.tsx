@@ -26,6 +26,7 @@ const SuccessStoriesCard = ({
         component="img"
         src={image}
         alt={name}
+        loading="lazy"
         sx={(theme) => ({
           height: "20rem",
           width: "100%",

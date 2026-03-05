@@ -32,6 +32,7 @@ const WhyChooseUsCard = ({
             src={icon}
             alt=""
             component="img"
+            loading="lazy"
           ></Box>
         </Box>
         <Typography variant="body1Bold" color="text.primary">
