@@ -33,6 +33,6 @@ export const ASSETS = {
     ],
   },
   common: {
-    banner: "/favicon.webp",
+    banner: "/favicon.png",
   },
 } as const;

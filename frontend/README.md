@@ -103,7 +103,7 @@ src/
 └── assets/           # Static assets
 
 public/
-└── favicon.svg       # Application favicon
+└── favicon.png       # Application favicon
 ```
 
 ## Configuration Files
