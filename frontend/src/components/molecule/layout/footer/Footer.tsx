@@ -72,15 +72,26 @@ const Footer = () => {
             justifyContent: "center",
           }}
         >
-          <NavLink className="link-styling" to="#" aria-label="facebook">
+          <NavLink
+            className="link-styling"
+            to="https://www.instagram.com/rishtabyaggarwal/"
+            target="_blank"
+            aria-label="facebook"
+          >
             <Facebook sx={{ color: "text.secondary" }} />
           </NavLink>
-          <NavLink className="link-styling" to="#" aria-label="instagram">
+          <NavLink
+            className="link-styling"
+            to="https://www.instagram.com/rishtabyaggarwal/"
+            target="_blank"
+            aria-label="instagram"
+          >
             <Instagram sx={{ color: "text.secondary" }} />
           </NavLink>
           <NavLink
             className="link-styling"
-            to="#"
+            to="https://www.instagram.com/rishtabyaggarwal/"
+            target="_blank"
             aria-label="x"
             aria-description="twitter"
           >
