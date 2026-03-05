@@ -21,7 +21,7 @@ const Header = () => {
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      sx={{ gap: { xs: 1, md: 2 } }}
+      sx={{ gap: { xs: 1, md: 2 }, py: 2, px: { xs: 2, sm: 4 } }}
       maxWidth="xl"
       width="100%"
     >

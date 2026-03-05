@@ -15,7 +15,7 @@ import FAQ from "../../components/molecule/advertisement/faq/FAQ";
 const Home = () => {
   return (
     <ContentContainer>
-      <Content component="header" sx={{ py: 1, px: 2 }}>
+      <Content component="header">
         <Header />
       </Content>
       <Content>
@@ -70,7 +70,7 @@ const Home = () => {
           backgroundColor: theme.palette.background.tertiary,
         })}
       >
-        <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+        <Content>
           <Footer />
         </Content>
       </ContentContainer>

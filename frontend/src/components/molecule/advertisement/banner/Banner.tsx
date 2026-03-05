@@ -92,7 +92,7 @@ const Banner = () => {
           {bannerText.heading}
         </Typography>
         <Typography
-          variant="h5"
+          variant="body1"
           component="p"
           sx={{
             color: "common.white",

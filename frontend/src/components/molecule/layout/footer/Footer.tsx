@@ -12,15 +12,18 @@ const { footer } = TEXT;
 
 const Footer = () => {
   return (
-    <Center gap={{ xs: 2, md: 4 }}>
-      <Grid container spacing={{ xs: 2, md: 6 }} width="100%">
+    <Center
+      gap={{ xs: 2, md: 4 }}
+      sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+    >
+      <Grid container spacing={{ xs: 2, md: 10 }} width="100%">
         {/* About Brand */}
         <Grid
           container
           direction="column"
           alignItems="center"
           justifyContent="center"
-          gap={2}
+          spacing={2}
           size={{ xs: 12, md: 4 }}
         >
           <NavLink className="link-styling" to={AppRoutes.HOME}>
