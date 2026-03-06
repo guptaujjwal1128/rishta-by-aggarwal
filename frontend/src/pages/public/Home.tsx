@@ -1,5 +1,5 @@
 // External
-import { alpha, Divider } from "@mui/material";
+import { alpha } from "@mui/material";
 
 // Internal
 import { ContentContainer, Content } from "../../styles/Layout.styled";
@@ -13,24 +13,26 @@ import WhyChooseUs from "../../components/molecule/advertisement/why-choose-us/W
 import FAQ from "../../components/molecule/advertisement/faq/FAQ";
 
 const Home = () => {
+  // FAQ state
   return (
     <ContentContainer>
-      <Content component="header">
+      {/* header */}
+      <Content noMaxWidth>
         <Header />
       </Content>
-      <Content>
-        <Divider />
-      </Content>
       <ContentContainer component="main">
+        {/* banner */}
         <Content noMaxWidth component="section" sx={{ p: { xs: 2, sm: 0 } }}>
           <Banner />
         </Content>
+        {/* how it works */}
         <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
         >
           <HowItWorks />
         </Content>
+        {/* pricing plans */}
         <ContentContainer
           component="section"
           sx={(theme) => ({
@@ -41,12 +43,14 @@ const Home = () => {
             <PricingPlans />
           </Content>
         </ContentContainer>
+        {/* success stories */}
         <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
         >
           <SuccessStories />
         </Content>
+        {/* why choose us */}
         <ContentContainer
           component="section"
           sx={(theme) => ({
@@ -57,6 +61,7 @@ const Home = () => {
             <WhyChooseUs />
           </Content>
         </ContentContainer>
+        {/* faq */}
         <Content
           component="section"
           sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
@@ -64,16 +69,10 @@ const Home = () => {
           <FAQ />
         </Content>
       </ContentContainer>
-      <ContentContainer
-        component="footer"
-        sx={(theme) => ({
-          backgroundColor: theme.palette.background.tertiary,
-        })}
-      >
-        <Content>
-          <Footer />
-        </Content>
-      </ContentContainer>
+      {/* footer */}
+      <Content noMaxWidth>
+        <Footer />
+      </Content>
     </ContentContainer>
   );
 };

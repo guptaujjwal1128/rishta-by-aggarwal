@@ -4,6 +4,7 @@
 - Determine whether about us page is required in addition to contact us
 - Add privacy policy
 - Add Success Stories Page
+- link google location as well after it appears on google buisiness
 
 ## Macro
 
@@ -16,7 +17,11 @@
 
 ### Accessibility
 
+- testing
+
 ### Security
+
+- testing
 
 ### Performance - loading, caching etc
 
@@ -26,6 +31,10 @@
 
 ### Cross Browser Testing
 
+- testing
+
 ### domain and hosting management
+
+- deploy on AWS
 
 ### marketing

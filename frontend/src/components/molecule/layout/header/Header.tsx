@@ -1,5 +1,5 @@
 // External
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -9,6 +9,7 @@ import { NavLink } from "react-router";
 // Internal
 import useNavigation from "../../../../hooks/useNavigation";
 import { AppRoutes } from "../../../../constants/routes";
+import { Center } from "../../../../styles/Layout.styled";
 import { TEXT } from "../../../../constants/TEXT";
 import { ASSETS } from "../../../../constants/ASSETS";
 const { header } = TEXT;
@@ -17,52 +18,58 @@ const Header = () => {
   const { goTo } = useNavigation();
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ gap: { xs: 1, md: 2 }, py: 2, px: { xs: 2, sm: 4 } }}
-      maxWidth="xl"
-      width="100%"
-    >
-      <NavLink className="link-styling" to={AppRoutes.HOME}>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <Box
-            component="img"
-            src={ASSETS.common.banner}
-            alt=""
-            height={{ xs: 30, md: 40 }}
-            width={{ xs: 30, md: 40 }}
-          />
-          <Typography variant="h5" component="h1" color="primary">
-            {header.brandName}
-          </Typography>
+    <>
+      <Center>
+        <Stack
+          component="header"
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ gap: { xs: 1, md: 2 }, py: 2, px: { xs: 2, sm: 4 } }}
+          maxWidth="xl"
+          width="100%"
+        >
+          <NavLink className="link-styling" to={AppRoutes.HOME}>
+            <Stack direction="row" alignItems="center" gap={0.5}>
+              <Box
+                component="img"
+                src={ASSETS.common.banner}
+                alt=""
+                height={{ xs: 30, md: 40 }}
+                width={{ xs: 30, md: 40 }}
+              />
+              <Typography variant="h5" component="h1" color="primary">
+                {header.brandName}
+              </Typography>
+            </Stack>
+          </NavLink>
+          <Stack
+            component="nav"
+            direction="row"
+            alignItems="center"
+            sx={{ gap: { xs: 1, md: 2 } }}
+          >
+            <SecondaryButton
+              component="a"
+              onClick={() => {
+                void goTo(AppRoutes.LOGIN);
+              }}
+            >
+              <Typography variant="body2Bold">{header.login}</Typography>
+            </SecondaryButton>
+            <PrimaryButton
+              component="a"
+              onClick={() => {
+                void goTo(AppRoutes.REGISTER);
+              }}
+            >
+              <Typography variant="body2Bold">{header.joinNow}</Typography>
+            </PrimaryButton>
+          </Stack>
         </Stack>
-      </NavLink>
-      <Stack
-        component="nav"
-        direction="row"
-        alignItems="center"
-        sx={{ gap: { xs: 1, md: 2 } }}
-      >
-        <SecondaryButton
-          component="a"
-          onClick={() => {
-            void goTo(AppRoutes.LOGIN);
-          }}
-        >
-          <Typography variant="body2Bold">{header.login}</Typography>
-        </SecondaryButton>
-        <PrimaryButton
-          component="a"
-          onClick={() => {
-            void goTo(AppRoutes.REGISTER);
-          }}
-        >
-          <Typography variant="body2Bold">{header.joinNow}</Typography>
-        </PrimaryButton>
-      </Stack>
-    </Stack>
+      </Center>
+      <Divider sx={{ borderColor: "border.primary" }} />
+    </>
   );
 };
 

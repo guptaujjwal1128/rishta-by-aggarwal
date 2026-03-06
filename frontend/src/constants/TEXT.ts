@@ -9,6 +9,12 @@ const HEADER_TEXT = {
 const FOOTER_TEXT = {
   brandName: "Rishta by Aggarwal",
   tagline: "Your trusted partner in the journey to find a lifelong companion.",
+  address: `C56 Duggal Colony, Devli Road , Khanpur ${"\n"} New Delhi - 110080`,
+  contact: {
+    name: "Rakesh Aggarwal",
+    mobile: ["9873228347", "9318376815"],
+    mail: "info@rishtabyaggarwal.in",
+  },
   links: [
     { label: "Login", path: AppRoutes.LOGIN },
     { label: "Register", path: AppRoutes.REGISTER },
