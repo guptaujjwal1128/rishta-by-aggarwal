@@ -26,40 +26,43 @@ const Home = () => {
           <Banner />
         </Content>
         <Content
+          className="page-rise"
           component="section"
-          sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+          sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}
         >
           <HowItWorks />
         </Content>
         <ContentContainer
           component="section"
           sx={(theme) => ({
-            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            background:
+              `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)}, ${alpha(theme.palette.tertiary.main, 0.13)})`,
           })}
         >
-          <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+          <Content sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}>
             <PricingPlans />
           </Content>
         </ContentContainer>
         <Content
           component="section"
-          sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+          sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}
         >
           <SuccessStories />
         </Content>
         <ContentContainer
           component="section"
           sx={(theme) => ({
-            backgroundColor: alpha(theme.palette.tertiary.main, 0.1),
+            background:
+              `linear-gradient(180deg, ${alpha(theme.palette.tertiary.main, 0.14)}, ${alpha(theme.palette.secondary.main, 0.08)})`,
           })}
         >
-          <Content sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}>
+          <Content sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}>
             <WhyChooseUs />
           </Content>
         </ContentContainer>
         <Content
           component="section"
-          sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 4 } }}
+          sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}
         >
           <FAQ />
         </Content>

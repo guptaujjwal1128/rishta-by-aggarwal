@@ -16,9 +16,16 @@ const SuccessStoriesCard = ({
       sx={(theme) => ({
         flex: 1,
         flexDirection: "column",
-        border: `1px solid ${theme.palette.border.primary}`,
-        borderRadius: theme.spacing(2),
-        backgroundColor: theme.palette.background.paper,
+        border: `1px solid ${theme.palette.border.secondary}`,
+        borderRadius: theme.spacing(1),
+        backgroundColor: "rgba(255, 255, 255, 0.86)",
+        boxShadow: "0 18px 42px rgba(83, 45, 25, 0.08)",
+        overflow: "hidden",
+        transition: "transform 180ms ease, box-shadow 180ms ease",
+        "&:hover": {
+          transform: "translateY(-3px)",
+          boxShadow: "0 24px 54px rgba(83, 45, 25, 0.13)",
+        },
       })}
     >
       {/* Couple Image */}
@@ -27,12 +34,15 @@ const SuccessStoriesCard = ({
         src={image}
         alt={name}
         loading="lazy"
-        sx={(theme) => ({
+        sx={{
           height: "20rem",
           width: "100%",
           objectFit: "cover",
-          borderRadius: `${theme.spacing(2)} ${theme.spacing(2)} 0 0`,
-        })}
+          transition: "transform 260ms ease",
+          ".MuiStack-root:hover &": {
+            transform: "scale(1.025)",
+          },
+        }}
       />
       <Box sx={{ p: 3 }}>
         {/* Quote text */}

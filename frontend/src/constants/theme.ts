@@ -4,22 +4,22 @@ import { BREAKPOINTS } from "./breakpoints";
 export const THEME_OPTIONS: ThemeOptions = {
   palette: {
     primary: {
-      main: "#FD9667",
+      main: "#B9471F",
     },
     secondary: {
-      main: "#ff80b7",
+      main: "#C65B7C",
     },
     tertiary: {
-      main: "#FFDE85",
+      main: "#F1B84B",
     },
     text: {
-      primary: "#333333",
-      secondary: "#636A77",
+      primary: "#2D211C",
+      secondary: "#6E625B",
     },
     background: {
-      default: "#FFFDFC",
-      paper: "#FAFAFA",
-      tertiary: "#F3F4F6",
+      default: "#FFF8F1",
+      paper: "#FFFFFF",
+      tertiary: "#F7ECE1",
     },
     // for actions like hover, selected, etc.
     action: {},
@@ -34,9 +34,12 @@ export const THEME_OPTIONS: ThemeOptions = {
 
     // custom
     border: {
-      primary: "#D1D5DB",
-      secondary: "#E5E7EB",
+      primary: "#E2C8B5",
+      secondary: "#F0DED0",
     },
+  },
+  shape: {
+    borderRadius: 8,
   },
   typography: {
     fontFamily: "Roboto, sans-serif",
@@ -165,6 +168,50 @@ export const THEME_OPTIONS: ThemeOptions = {
         root: {
           cursor: "pointer",
           textDecoration: "none",
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+          transition: "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          transition: "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFFFFF",
+          transition: "box-shadow 180ms ease, border-color 180ms ease",
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#D7A687",
+          },
+          "&.Mui-focused": {
+            boxShadow: "0 0 0 3px rgba(185, 71, 31, 0.12)",
+          },
+        },
+        notchedOutline: {
+          borderColor: "#E2C8B5",
         },
       },
     },

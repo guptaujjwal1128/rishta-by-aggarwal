@@ -11,6 +11,13 @@
 **/node_modules
 **/dist
 **/dist-ssr
+backend/data/*.json
+backend/uploads/*
+!backend/uploads/.gitkeep
+data/
+**/.env
+**/.env.*
+!**/.env.example
 **/*.local
 
 # Editor directories and files
