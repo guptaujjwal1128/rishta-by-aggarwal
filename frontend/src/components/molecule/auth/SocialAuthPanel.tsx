@@ -49,7 +49,13 @@ const providerLabel: Record<Provider, string> = {
   facebook: "Facebook",
 };
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+function googleClientId() {
+  return (
+    window.__APP_CONFIG__?.VITE_GOOGLE_CLIENT_ID ||
+    (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ||
+    ""
+  );
+}
 let googleScriptPromise: Promise<void> | null = null;
 
 function loadGoogleScript() {
@@ -98,7 +104,8 @@ const SocialAuthPanel = ({ mode, onSuccess }: SocialAuthPanelProps) => {
   };
 
   const continueWithGoogle = useCallback(async () => {
-    if (!googleClientId) {
+    const clientId = googleClientId();
+    if (!clientId) {
       setProvider("google");
       return;
     }
@@ -108,7 +115,7 @@ const SocialAuthPanel = ({ mode, onSuccess }: SocialAuthPanelProps) => {
     try {
       await loadGoogleScript();
       window.google?.accounts.id.initialize({
-        client_id: googleClientId,
+        client_id: clientId,
         callback: (response) => {
           void (async () => {
             if (!response.credential) {

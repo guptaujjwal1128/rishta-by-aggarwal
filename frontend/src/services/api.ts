@@ -9,7 +9,10 @@ import type {
   User,
 } from "../types/domain";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:4000/api";
+const API_BASE_URL =
+  window.__APP_CONFIG__?.VITE_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://127.0.0.1:4000/api";
 const ASSET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 const TOKEN_KEY = "rishta_auth_token";
 

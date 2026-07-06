@@ -1,9 +1,7 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
 const { randomUUID } = require("crypto");
 
-const { UPLOAD_DIR } = require("../config");
 const {
   addProfilePhotos,
   findUserById,
@@ -20,6 +18,7 @@ const {
   parseUploadedBiodata,
 } = require("../services/profileParser");
 const { createBiodataPdf } = require("../services/pdfService");
+const { uploadPhoto } = require("../services/storageService");
 
 const router = express.Router();
 
@@ -29,13 +28,7 @@ const importUpload = multer({
 });
 
 const photoUpload = multer({
-  storage: multer.diskStorage({
-    destination: path.join(UPLOAD_DIR, "photos"),
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname || "").toLowerCase() || ".jpg";
-      cb(null, `${randomUUID()}${ext}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image uploads are allowed"));
@@ -177,14 +170,21 @@ router.post("/:id/photos", photoUpload.array("photos", 5), async (req, res, next
       return res.status(403).json({ message: "This biodata is locked by admin" });
     }
 
-    const uploaded = (req.files || []).map((file) => ({
-      id: randomUUID(),
-      filename: file.filename,
-      originalName: file.originalname,
-      mimeType: file.mimetype,
-      url: `/uploads/photos/${file.filename}`,
-      uploadedAt: new Date().toISOString(),
-    }));
+    const uploaded = await Promise.all(
+      (req.files || []).map(async (file) => {
+        const stored = await uploadPhoto(file);
+        return {
+          id: randomUUID(),
+          filename: stored.filename,
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          url: stored.url,
+          storageProvider: stored.storageProvider,
+          storagePath: stored.storagePath,
+          uploadedAt: new Date().toISOString(),
+        };
+      }),
+    );
 
     const savedProfile = await addProfilePhotos(req.params.id, uploaded);
 
@@ -200,7 +200,7 @@ router.get("/:id/biodata.pdf", async (req, res, next) => {
     if (!profile) {
       return res.status(404).json({ message: "Profile not found" });
     }
-    createBiodataPdf(profile, res);
+    await createBiodataPdf(profile, res);
   } catch (err) {
     next(err);
   }
