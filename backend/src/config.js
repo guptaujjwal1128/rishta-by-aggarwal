@@ -18,4 +18,7 @@ module.exports = {
     "postgres://rishta:rishta@127.0.0.1:5433/rishta_dev",
   DATA_FILE: process.env.DATA_FILE || path.join(ROOT_DIR, "data", "db.json"),
   UPLOAD_DIR: process.env.UPLOAD_DIR || path.join(ROOT_DIR, "uploads"),
+  GCP_PROJECT_ID: process.env.GCP_PROJECT_ID || "",
+  GCS_UPLOAD_BUCKET: process.env.GCS_UPLOAD_BUCKET || "",
+  GCS_PUBLIC_BASE_URL: process.env.GCS_PUBLIC_BASE_URL || "",
 };

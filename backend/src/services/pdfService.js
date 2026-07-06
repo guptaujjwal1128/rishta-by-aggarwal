@@ -1,4 +1,6 @@
 const fs = require("fs");
+const fsp = require("fs/promises");
+const os = require("os");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 
@@ -32,11 +34,57 @@ function formatIncome(value) {
 }
 
 function photoPath(photo) {
+  if (photo?.localPath && fs.existsSync(photo.localPath)) {
+    return photo.localPath;
+  }
   if (!photo?.filename) {
     return "";
   }
   const candidate = path.join(UPLOAD_DIR, "photos", photo.filename);
   return fs.existsSync(candidate) ? candidate : "";
+}
+
+async function downloadRemotePhoto(photo, tempDir) {
+  if (!photo?.url || !photo.url.startsWith("http")) {
+    return photo;
+  }
+
+  try {
+    const response = await fetch(photo.url);
+    if (!response.ok) {
+      return photo;
+    }
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.startsWith("image/")) {
+      return photo;
+    }
+    const extension = path.extname(new URL(photo.url).pathname) || ".jpg";
+    const localPath = path.join(tempDir, `${photo.id || Date.now()}${extension}`);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    await fsp.writeFile(localPath, buffer);
+    return { ...photo, localPath };
+  } catch {
+    return photo;
+  }
+}
+
+async function preparePdfPhotos(profile) {
+  const photos = profile.photos || [];
+  if (!photos.some((photo) => photo?.url?.startsWith("http"))) {
+    return { profile, cleanup: async () => {} };
+  }
+
+  const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "rishta-pdf-"));
+  const preparedPhotos = await Promise.all(
+    photos.map((photo) => downloadRemotePhoto(photo, tempDir)),
+  );
+
+  return {
+    profile: { ...profile, photos: preparedPhotos },
+    cleanup: async () => {
+      await fsp.rm(tempDir, { recursive: true, force: true });
+    },
+  };
 }
 
 function drawBackground(doc) {
@@ -219,7 +267,9 @@ function drawHeader(doc, profile) {
   return 206;
 }
 
-function createBiodataPdf(profile, res) {
+async function createBiodataPdf(inputProfile, res) {
+  const prepared = await preparePdfPhotos(inputProfile);
+  const profile = prepared.profile;
   const doc = new PDFDocument({ margin: page.margin, size: "A4", autoFirstPage: false });
   const fileName = `${profile.fullName || "profile"}-biodata.pdf`
     .replace(/[^a-z0-9]+/gi, "-")
@@ -294,6 +344,9 @@ function createBiodataPdf(profile, res) {
       { width: page.contentWidth, align: "center" },
     );
 
+  doc.on("end", () => {
+    void prepared.cleanup();
+  });
   doc.end();
 }
 

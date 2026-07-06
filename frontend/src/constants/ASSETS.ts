@@ -8,11 +8,11 @@ import pricingCross from "../assets/home/pricingPlanIconCross.webp";
 import successStory1 from "../assets/home/success_story_1.webp";
 import successStory2 from "../assets/home/success_story_2.webp";
 import successStory3 from "../assets/home/success_story_3.webp";
-import WhyChooseUs1 from "../assets/home/WhyChooseUs1.webp";
-import WhyChooseUs2 from "../assets/home/WhyChooseUs2.webp";
-import WhyChooseUs3 from "../assets/home/WhyChooseUs3.webp";
-import WhyChooseUs4 from "../assets/home/WhyChooseUs4.webp";
-import WhyChooseUs5 from "../assets/home/WhyChooseUs5.webp";
+import WhyChooseUs1 from "../assets/home/whyChooseUs1.webp";
+import WhyChooseUs2 from "../assets/home/whyChooseUs2.webp";
+import WhyChooseUs3 from "../assets/home/whyChooseUs3.webp";
+import WhyChooseUs4 from "../assets/home/whyChooseUs4.webp";
+import WhyChooseUs5 from "../assets/home/whyChooseUs5.webp";
 import WhyChooseUs6 from "../assets/home/WhyChooseUs6.webp";
 export const ASSETS = {
   home: {
