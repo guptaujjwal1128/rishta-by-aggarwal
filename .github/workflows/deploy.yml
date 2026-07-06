@@ -1,0 +1,103 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'rishta-by-aggarwal' }}
+  REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
+  ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY || 'rishta' }}
+  BACKEND_SERVICE: ${{ vars.BACKEND_SERVICE || 'rishta-api' }}
+  FRONTEND_SERVICE: ${{ vars.FRONTEND_SERVICE || 'rishta-web' }}
+  GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}
+  NODE_ENV: production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build backend image
+        run: |
+          docker build \
+            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
+            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest" \
+            backend
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
+            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest" \
+            frontend
+
+      - name: Push backend image
+        run: |
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}"
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest"
+
+      - name: Push frontend image
+        run: |
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}"
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest"
+
+      - name: Deploy backend
+        run: |
+          ENV_VARS="NODE_ENV=production,PORT=8080,GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${{ vars.GCS_UPLOAD_BUCKET }},ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }},ADMIN_NAME=${{ vars.ADMIN_NAME || 'Rishta Admin' }}"
+          SECRET_VARS="DATABASE_URL=${{ vars.DATABASE_URL_SECRET || 'rishta-database-url' }}:latest,JWT_SECRET=${{ vars.JWT_SECRET_SECRET || 'rishta-jwt-secret' }}:latest,GEMINI_API_KEY=${{ vars.GEMINI_API_KEY_SECRET || 'rishta-gemini-api-key' }}:latest"
+
+          if [ -n "${{ vars.ADMIN_PASSWORD_SECRET }}" ]; then
+            SECRET_VARS="${SECRET_VARS},ADMIN_PASSWORD=${{ vars.ADMIN_PASSWORD_SECRET }}:latest"
+          else
+            ENV_VARS="${ENV_VARS},ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
+          fi
+
+          SQL_ARGS=()
+          if [ -n "${{ vars.CLOUD_SQL_INSTANCE }}" ]; then
+            SQL_ARGS+=(--add-cloudsql-instances "${{ vars.CLOUD_SQL_INSTANCE }}")
+          fi
+
+          gcloud run deploy "${BACKEND_SERVICE}" \
+            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
+            --region "${REGION}" \
+            --allow-unauthenticated \
+            --port 8080 \
+            --cpu 1 \
+            --memory 512Mi \
+            --min-instances 0 \
+            --max-instances 1 \
+            --set-env-vars "${ENV_VARS}" \
+            --set-secrets "${SECRET_VARS}" \
+            "${SQL_ARGS[@]}"
+
+      - name: Deploy frontend
+        run: |
+          gcloud run deploy "${FRONTEND_SERVICE}" \
+            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
+            --region "${REGION}" \
+            --allow-unauthenticated \
+            --port 8080 \
+            --cpu 1 \
+            --memory 512Mi \
+            --min-instances 0 \
+            --max-instances 1 \
+            --set-env-vars "VITE_API_URL=${{ vars.VITE_API_URL }},VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}"

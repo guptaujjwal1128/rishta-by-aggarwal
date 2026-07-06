@@ -8,6 +8,38 @@ This project is set up for a GCP-only production deployment:
 - Uploaded photos/docs: Cloud Storage
 - Secrets: Secret Manager
 
+## Deployment flow
+
+Recommended production flow:
+
+```text
+PR -> merge to main -> GitHub Actions builds Docker images -> pushes to Artifact Registry -> deploys Cloud Run
+```
+
+No backend secrets are baked into Docker images. The backend reads runtime env vars
+from `process.env`. The frontend reads public runtime config from `/env.js`, generated
+when the nginx container starts.
+
+Use these local env templates:
+
+```text
+backend/.env.development.example
+backend/.env.production.example
+frontend/.env.development.example
+frontend/.env.production.example
+deploy/.env.production.example
+```
+
+Copy examples before local use:
+
+```bash
+cp backend/.env.development.example backend/.env
+cp frontend/.env.development.example frontend/.env
+cp deploy/.env.production.example deploy/.env.production
+```
+
+Do not commit real `.env` files.
+
 ## 1. Choose variables
 
 ```bash
@@ -86,6 +118,98 @@ gcloud run deploy rishta-api \
   --add-cloudsql-instances "$INSTANCE_CONNECTION_NAME" \
   --set-env-vars NODE_ENV=production,GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID",GEMINI_MODEL=gemini-3.5-flash,GCS_UPLOAD_BUCKET="$BUCKET_NAME",ADMIN_EMAIL=admin@rishta.local,ADMIN_PASSWORD=change-this-admin-password,ADMIN_NAME="Rishta Admin" \
   --set-secrets DATABASE_URL=rishta-database-url:latest,JWT_SECRET=rishta-jwt-secret:latest,GEMINI_API_KEY=rishta-gemini-api-key:latest
+```
+
+## 5a. Alternative: build locally, push image, deploy image
+
+This skips Cloud Build source deployment and uses the scripts in this repo.
+
+Create Artifact Registry once:
+
+```bash
+gcloud artifacts repositories create rishta \
+  --repository-format=docker \
+  --location="$REGION"
+
+gcloud auth configure-docker "$REGION-docker.pkg.dev"
+```
+
+Fill:
+
+```text
+deploy/.env.production
+```
+
+Then:
+
+```bash
+npm run build:images
+npm run push:images
+npm run deploy:backend
+npm run deploy:frontend
+```
+
+Or all at once:
+
+```bash
+npm run deploy:all
+```
+
+## 5b. CI/CD with GitHub Actions
+
+The workflow lives at:
+
+```text
+.github/workflows/deploy.yml
+```
+
+It runs on pushes to `main`.
+
+Create a GCP service account for GitHub Actions with these roles:
+
+```text
+Artifact Registry Writer
+Cloud Run Admin
+Service Account User
+Cloud SQL Client
+Secret Manager Secret Accessor
+Storage Object User
+```
+
+For the simple first version, create a JSON key for that service account and add
+it to GitHub:
+
+```text
+Repo -> Settings -> Secrets and variables -> Actions -> Secrets
+GCP_SA_KEY=<service account JSON>
+```
+
+Add GitHub repository variables:
+
+```text
+GCP_PROJECT_ID=rishta-by-aggarwal
+GCP_REGION=asia-south1
+ARTIFACT_REPOSITORY=rishta
+BACKEND_SERVICE=rishta-api
+FRONTEND_SERVICE=rishta-web
+GOOGLE_CLIENT_ID=1084232234514-mr554jri3hodjdme4ihlbadipqt73or5.apps.googleusercontent.com
+GEMINI_MODEL=gemini-2.5-flash-lite
+GCS_UPLOAD_BUCKET=<bucket-name>
+ADMIN_EMAIL=admin@ayrishtabyaggarwal.in
+ADMIN_NAME=Rishta Admin
+DATABASE_URL_SECRET=rishta-database-url
+JWT_SECRET_SECRET=rishta-jwt-secret
+GEMINI_API_KEY_SECRET=rishta-gemini-api-key
+ADMIN_PASSWORD_SECRET=rishta-admin-password
+CLOUD_SQL_INSTANCE=rishta-by-aggarwal:asia-south1:rishta-by-aggarwal-db
+VITE_API_URL=https://YOUR_BACKEND_URL/api
+```
+
+If you do not create `rishta-admin-password` in Secret Manager, add a GitHub
+Actions secret instead:
+
+```text
+ADMIN_PASSWORD=<your-admin-password>
 ```
 
 Get the API URL:
