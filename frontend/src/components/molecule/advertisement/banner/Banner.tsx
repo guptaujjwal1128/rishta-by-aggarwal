@@ -23,10 +23,10 @@ const Banner = () => {
     <Center
       sx={(theme) => ({
         position: "relative",
-        minHeight: theme.spacing(60),
+        minHeight: { xs: theme.spacing(58), md: theme.spacing(68) },
+        overflow: "hidden",
+        borderRadius: { xs: theme.spacing(2), sm: 0 },
         [theme.breakpoints.down("sm")]: {
-          borderRadius: theme.spacing(2),
-          overflow: "hidden",
         },
       })}
     >
@@ -64,7 +64,18 @@ const Banner = () => {
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%)",
+            "linear-gradient(180deg, rgba(36,22,14,0.28) 0%, rgba(36,22,14,0.58) 100%)",
+        }}
+      />
+
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.16) 45%, transparent 58%)",
+          animation: "softSheen 8s ease-in-out infinite",
+          pointerEvents: "none",
         }}
       />
 
@@ -77,6 +88,8 @@ const Banner = () => {
           position: "relative",
           gap: { xs: 3, lg: 6 },
           padding: { xs: 2, lg: 6 },
+          maxWidth: 940,
+          animation: "riseIn 420ms ease both",
         }}
       >
         <Typography
@@ -85,7 +98,7 @@ const Banner = () => {
           sx={{
             color: "common.white",
             textAlign: "center",
-            textShadow: "0 4px 12px rgba(0,0,0,0.8)",
+            textShadow: "0 5px 18px rgba(0,0,0,0.58)",
             whiteSpace: "pre-wrap",
           }}
         >
@@ -97,7 +110,8 @@ const Banner = () => {
           sx={{
             color: "common.white",
             textAlign: "center",
-            textShadow: "0 4px 12px rgba(0,0,0,0.8)",
+            textShadow: "0 4px 14px rgba(0,0,0,0.56)",
+            maxWidth: 720,
           }}
         >
           {bannerText.subheading}

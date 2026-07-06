@@ -1,11 +1,19 @@
-import { Outlet } from "react-router";
+import { Navigate, Outlet } from "react-router";
+
+import { useAuth } from "../../../context/AuthContext";
+import { AppRoutes } from "../../../constants/routes";
 
 export interface RequireRoleProps {
   role: string;
 }
 
 const RequireRole = ({ role }: RequireRoleProps) => {
-  console.log("auth role todo", role);
+  const { user } = useAuth();
+
+  if (!user || user.role !== role) {
+    return <Navigate to={AppRoutes.DASHBOARD} replace />;
+  }
+
   return <Outlet />;
 };
 

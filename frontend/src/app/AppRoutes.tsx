@@ -22,6 +22,7 @@ import Settings from "../pages/user/Settings";
 
 import RequireAuth from "../components/molecule/auth/RequireAuth";
 import RequireRole from "../components/molecule/auth/RequireRole";
+import MobileBottomNav from "../components/molecule/layout/mobile-bottom-nav/MobileBottomNav";
 import { AppRoutes as AppRoutesEnum } from "../constants/routes";
 
 const ScrollToTop = () => {
@@ -70,6 +71,7 @@ const AppRoutes = () => {
         {/* Default route for 404 */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
+      <MobileBottomNav />
     </>
   );
 };
