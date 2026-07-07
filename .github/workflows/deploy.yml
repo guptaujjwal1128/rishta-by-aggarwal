@@ -8,7 +8,9 @@ on:
 
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'rishta-by-aggarwal' }}
-  REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
+  ARTIFACT_REGION: ${{ vars.ARTIFACT_REGION || vars.GCP_REGION || 'asia-south2' }}
+  BACKEND_REGION: ${{ vars.BACKEND_REGION || vars.GCP_REGION || 'asia-south2' }}
+  FRONTEND_REGION: ${{ vars.FRONTEND_REGION || 'asia-southeast1' }}
   ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY || 'rishta' }}
   BACKEND_SERVICE: ${{ vars.BACKEND_SERVICE || 'rishta-api' }}
   FRONTEND_SERVICE: ${{ vars.FRONTEND_SERVICE || 'rishta-web' }}
@@ -35,31 +37,31 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+        run: gcloud auth configure-docker "${ARTIFACT_REGION}-docker.pkg.dev" --quiet
 
       - name: Build backend image
         run: |
           docker build \
-            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
-            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest" \
+            -t "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
+            -t "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest" \
             backend
 
       - name: Build frontend image
         run: |
           docker build \
-            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
-            -t "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest" \
+            -t "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
+            -t "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest" \
             frontend
 
       - name: Push backend image
         run: |
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}"
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest"
+          docker push "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}"
+          docker push "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:latest"
 
       - name: Push frontend image
         run: |
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}"
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest"
+          docker push "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}"
+          docker push "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:latest"
 
       - name: Deploy backend
         run: |
@@ -79,8 +81,8 @@ jobs:
           fi
 
           gcloud run deploy "${BACKEND_SERVICE}" \
-            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
-            --region "${REGION}" \
+            --image "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
+            --region "${BACKEND_REGION}" \
             --allow-unauthenticated \
             --port 8080 \
             --cpu 1 \
@@ -97,8 +99,8 @@ jobs:
           RUNTIME_SA="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
 
           gcloud run deploy "${FRONTEND_SERVICE}" \
-            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
-            --region "${REGION}" \
+            --image "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
+            --region "${FRONTEND_REGION}" \
             --allow-unauthenticated \
             --port 8080 \
             --cpu 1 \

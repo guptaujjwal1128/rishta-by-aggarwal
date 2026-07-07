@@ -7,7 +7,10 @@ source "$SCRIPT_DIR/lib/env.sh"
 
 load_env_file "${1:-$ROOT_DIR/deploy/.env}"
 
-require_var REGION
+if [[ -z "${BACKEND_REGION:-}" ]]; then
+  require_var REGION
+  BACKEND_REGION="$REGION"
+fi
 require_var PROJECT_ID
 require_var BACKEND_SERVICE
 require_var BACKEND_IMAGE
@@ -33,7 +36,7 @@ fi
 args=(
   run deploy "$BACKEND_SERVICE"
   --image "$(image_ref "$BACKEND_IMAGE")"
-  --region "$REGION"
+  --region "$BACKEND_REGION"
   --allow-unauthenticated
   --port 8080
   --cpu 1

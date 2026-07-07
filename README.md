@@ -115,6 +115,16 @@ gcloud auth configure-docker asia-south2-docker.pkg.dev
 
 Use your actual region if different.
 
+This project uses a split-region Cloud Run setup for custom domain support:
+
+```text
+ARTIFACT_REGION=asia-south2
+BACKEND_REGION=asia-south2
+FRONTEND_REGION=asia-southeast1
+```
+
+The backend stays near Cloud SQL in `asia-south2`. The frontend runs in `asia-southeast1` so `rishtabyaggarwal.in` can be mapped directly to Cloud Run.
+
 4. Build, push, and deploy:
 
 ```bash
@@ -168,6 +178,17 @@ RUNTIME_SERVICE_ACCOUNT=github-deploy@rishta-by-aggarwal.iam.gserviceaccount.com
 ```
 
 That runtime service account needs access to Secret Manager secrets and Cloud SQL.
+
+For the custom domain setup, set these GitHub Actions variables:
+
+```text
+ARTIFACT_REGION=asia-south2
+BACKEND_REGION=asia-south2
+FRONTEND_REGION=asia-southeast1
+VITE_API_URL=https://rishta-api-1084232234514.asia-south2.run.app/api
+```
+
+Map `rishtabyaggarwal.in` and `www.rishtabyaggarwal.in` to the frontend Cloud Run service in `asia-southeast1`.
 
 ## Runtime Config
 

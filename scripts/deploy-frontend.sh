@@ -7,7 +7,10 @@ source "$SCRIPT_DIR/lib/env.sh"
 
 load_env_file "${1:-$ROOT_DIR/deploy/.env}"
 
-require_var REGION
+if [[ -z "${FRONTEND_REGION:-}" ]]; then
+  require_var REGION
+  FRONTEND_REGION="$REGION"
+fi
 require_var PROJECT_ID
 require_var FRONTEND_SERVICE
 require_var FRONTEND_IMAGE
@@ -18,7 +21,7 @@ runtime_service_account="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.
 
 gcloud run deploy "$FRONTEND_SERVICE" \
   --image "$(image_ref "$FRONTEND_IMAGE")" \
-  --region "$REGION" \
+  --region "$FRONTEND_REGION" \
   --allow-unauthenticated \
   --port 8080 \
   --cpu 1 \
