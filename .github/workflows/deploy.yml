@@ -62,7 +62,7 @@ jobs:
 
       - name: Deploy backend
         run: |
-          ENV_VARS="NODE_ENV=production,PORT=8080,GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${{ vars.GCS_UPLOAD_BUCKET }},ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }},ADMIN_NAME=${{ vars.ADMIN_NAME || 'Rishta Admin' }}"
+          ENV_VARS="NODE_ENV=production,GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${{ vars.GCS_UPLOAD_BUCKET }},ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }},ADMIN_NAME=${{ vars.ADMIN_NAME || 'Rishta Admin' }}"
           SECRET_VARS="DATABASE_URL=${{ vars.DATABASE_URL_SECRET || 'rishta-database-url' }}:latest,JWT_SECRET=${{ vars.JWT_SECRET_SECRET || 'rishta-jwt-secret' }}:latest,GEMINI_API_KEY=${{ vars.GEMINI_API_KEY_SECRET || 'rishta-gemini-api-key' }}:latest"
 
           if [ -n "${{ vars.ADMIN_PASSWORD_SECRET }}" ]; then
