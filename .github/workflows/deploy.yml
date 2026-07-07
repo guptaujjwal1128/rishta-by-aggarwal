@@ -13,6 +13,7 @@ env:
   BACKEND_SERVICE: ${{ vars.BACKEND_SERVICE || 'rishta-api' }}
   FRONTEND_SERVICE: ${{ vars.FRONTEND_SERVICE || 'rishta-web' }}
   GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}
+  RUNTIME_SERVICE_ACCOUNT: ${{ vars.RUNTIME_SERVICE_ACCOUNT }}
   NODE_ENV: production
 
 jobs:
@@ -64,6 +65,7 @@ jobs:
         run: |
           ENV_VARS="NODE_ENV=production,GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${{ vars.GCS_UPLOAD_BUCKET }},ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }},ADMIN_NAME=${{ vars.ADMIN_NAME || 'Rishta Admin' }}"
           SECRET_VARS="DATABASE_URL=${{ vars.DATABASE_URL_SECRET || 'rishta-database-url' }}:latest,JWT_SECRET=${{ vars.JWT_SECRET_SECRET || 'rishta-jwt-secret' }}:latest,GEMINI_API_KEY=${{ vars.GEMINI_API_KEY_SECRET || 'rishta-gemini-api-key' }}:latest"
+          RUNTIME_SA="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
 
           if [ -n "${{ vars.ADMIN_PASSWORD_SECRET }}" ]; then
             SECRET_VARS="${SECRET_VARS},ADMIN_PASSWORD=${{ vars.ADMIN_PASSWORD_SECRET }}:latest"
@@ -85,12 +87,15 @@ jobs:
             --memory 512Mi \
             --min-instances 0 \
             --max-instances 1 \
+            --service-account "${RUNTIME_SA}" \
             --set-env-vars "${ENV_VARS}" \
             --set-secrets "${SECRET_VARS}" \
             "${SQL_ARGS[@]}"
 
       - name: Deploy frontend
         run: |
+          RUNTIME_SA="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
+
           gcloud run deploy "${FRONTEND_SERVICE}" \
             --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
             --region "${REGION}" \
@@ -100,4 +105,5 @@ jobs:
             --memory 512Mi \
             --min-instances 0 \
             --max-instances 1 \
+            --service-account "${RUNTIME_SA}" \
             --set-env-vars "VITE_API_URL=${{ vars.VITE_API_URL }},VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}"

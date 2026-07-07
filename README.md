@@ -110,7 +110,7 @@ deploy/.env
 3. Authenticate Docker to Artifact Registry:
 
 ```bash
-gcloud auth configure-docker asia-south1-docker.pkg.dev
+gcloud auth configure-docker asia-south2-docker.pkg.dev
 ```
 
 Use your actual region if different.
@@ -160,6 +160,14 @@ Required GitHub Actions variables are the same values shown in:
 ```text
 deploy/.env.example
 ```
+
+For Cloud Run secret access, set this variable to the service account that should run the containers:
+
+```text
+RUNTIME_SERVICE_ACCOUNT=github-deploy@rishta-by-aggarwal.iam.gserviceaccount.com
+```
+
+That runtime service account needs access to Secret Manager secrets and Cloud SQL.
 
 ## Runtime Config
 

@@ -8,6 +8,7 @@ source "$SCRIPT_DIR/lib/env.sh"
 load_env_file "${1:-$ROOT_DIR/deploy/.env}"
 
 require_var REGION
+require_var PROJECT_ID
 require_var BACKEND_SERVICE
 require_var BACKEND_IMAGE
 require_var GOOGLE_CLIENT_ID
@@ -20,6 +21,7 @@ require_var GEMINI_API_KEY_SECRET
 
 env_vars="NODE_ENV=${NODE_ENV:-production},GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${GCS_UPLOAD_BUCKET:-},ADMIN_EMAIL=${ADMIN_EMAIL},ADMIN_NAME=${ADMIN_NAME}"
 secret_vars="DATABASE_URL=${DATABASE_URL_SECRET}:latest,JWT_SECRET=${JWT_SECRET_SECRET}:latest,GEMINI_API_KEY=${GEMINI_API_KEY_SECRET}:latest"
+runtime_service_account="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
 
 if [[ -n "${ADMIN_PASSWORD_SECRET:-}" ]]; then
   secret_vars="${secret_vars},ADMIN_PASSWORD=${ADMIN_PASSWORD_SECRET}:latest"
@@ -38,6 +40,7 @@ args=(
   --memory 512Mi
   --min-instances 0
   --max-instances 1
+  --service-account "$runtime_service_account"
   --set-env-vars "$env_vars"
   --set-secrets "$secret_vars"
 )
