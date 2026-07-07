@@ -4,10 +4,10 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 load_env_file() {
-  local env_file="${1:-$ROOT_DIR/deploy/.env.production}"
+  local env_file="${1:-$ROOT_DIR/deploy/.env}"
   if [[ ! -f "$env_file" ]]; then
     echo "Missing env file: $env_file" >&2
-    echo "Copy deploy/.env.production.example to deploy/.env.production and fill it." >&2
+    echo "Copy deploy/.env.example to deploy/.env and fill it." >&2
     exit 1
   fi
 
