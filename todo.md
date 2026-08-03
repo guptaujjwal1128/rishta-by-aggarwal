@@ -1,31 +1,21 @@
-## Micro
-
-- Enter values for domain and others in meta data in html
-- Determine whether about us page is required in addition to contact us
-- Add privacy policy
-- Add Success Stories Page
-
-## Macro
+### Responsive
+- Tesing UI/UX at different screen sizes
 
 ### SEO
-
-- setup manifest and robots file
-- look for sitemap
-
-### Internationalisation
+- Diagnosis, penetration testing
 
 ### Accessibility
+- Diagnosis, penetration testing
 
 ### Security
+- Diagnosis, penetration testing
 
-### Performance - loading, caching etc
+### Performance
+- Image Optimisation
 
-- Image optimisation:
-  - load low quality image first and then high quality image
-  - apply css sprite for social icons
+### Internationalisation
+- Multi Language support mainly hindi
 
 ### Cross Browser Testing
-
-### domain and hosting management
 
 ### marketing

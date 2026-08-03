@@ -52,7 +52,7 @@ const providerLabel: Record<Provider, string> = {
 function googleClientId() {
   return (
     window.__APP_CONFIG__?.VITE_GOOGLE_CLIENT_ID ||
-    (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ||
+    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
     ""
   );
 }
@@ -69,9 +69,13 @@ function loadGoogleScript() {
     );
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Google SSO failed to load")), {
-        once: true,
-      });
+      existing.addEventListener(
+        "error",
+        () => reject(new Error("Google SSO failed to load")),
+        {
+          once: true,
+        },
+      );
       return;
     }
 
@@ -80,9 +84,13 @@ function loadGoogleScript() {
     script.async = true;
     script.defer = true;
     script.addEventListener("load", () => resolve(), { once: true });
-    script.addEventListener("error", () => reject(new Error("Google SSO failed to load")), {
-      once: true,
-    });
+    script.addEventListener(
+      "error",
+      () => reject(new Error("Google SSO failed to load")),
+      {
+        once: true,
+      },
+    );
     document.head.appendChild(script);
   });
 
@@ -129,7 +137,9 @@ const SocialAuthPanel = ({ mode, onSuccess }: SocialAuthPanelProps) => {
               });
               onSuccess();
             } catch (err) {
-              setError(err instanceof Error ? err.message : "Google sign-in failed");
+              setError(
+                err instanceof Error ? err.message : "Google sign-in failed",
+              );
             }
           })();
         },
@@ -196,10 +206,19 @@ const SocialAuthPanel = ({ mode, onSuccess }: SocialAuthPanelProps) => {
           {provider ? providerLabel[provider] : ""}
         </DialogTitle>
         <DialogContent>
-          <Stack component="form" id="social-auth-form" gap={2} mt={1} onSubmit={submit}>
+          <Stack
+            component="form"
+            id="social-auth-form"
+            gap={2}
+            mt={1}
+            onSubmit={(event) => {
+              void submit(event);
+            }}
+          >
             <Typography variant="body2" color="text.secondary">
-              OAuth credentials are not configured locally yet, so this development
-              flow uses your email to create or find the social account.
+              OAuth credentials are not configured locally yet, so this
+              development flow uses your email to create or find the social
+              account.
             </Typography>
             {error ? <Alert severity="error">{error}</Alert> : null}
             <TextField

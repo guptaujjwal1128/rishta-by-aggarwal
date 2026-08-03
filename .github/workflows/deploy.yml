@@ -7,16 +7,23 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'rishta-by-aggarwal' }}
-  ARTIFACT_REGION: ${{ vars.ARTIFACT_REGION || vars.GCP_REGION || 'asia-south2' }}
-  BACKEND_REGION: ${{ vars.BACKEND_REGION || vars.GCP_REGION || 'asia-south2' }}
-  FRONTEND_REGION: ${{ vars.FRONTEND_REGION || 'asia-southeast1' }}
-  ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY || 'rishta' }}
-  BACKEND_SERVICE: ${{ vars.BACKEND_SERVICE || 'rishta-api' }}
-  FRONTEND_SERVICE: ${{ vars.FRONTEND_SERVICE || 'rishta-web' }}
-  GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ vars.GCP_REGION }}
+  ARTIFACT_REGION: ${{ vars.ARTIFACT_REGION || vars.GCP_REGION }}
+  BACKEND_REGION: ${{ vars.BACKEND_REGION || vars.GCP_REGION }}
+  FRONTEND_REGION: ${{ vars.FRONTEND_REGION || vars.GCP_REGION }}
+  ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY }}
+  BACKEND_SERVICE: ${{ vars.BACKEND_SERVICE }}
+  FRONTEND_SERVICE: ${{ vars.FRONTEND_SERVICE }}
+  VERTEX_AI_LOCATION: ${{ vars.VERTEX_AI_LOCATION }}
+  VERTEX_AI_IMAGE_PROCESSING_PRIMARY: ${{ vars.VERTEX_AI_IMAGE_PROCESSING_PRIMARY }}
+  VERTEX_AI_IMAGE_PROCESSING_SECONDARY: ${{ vars.VERTEX_AI_IMAGE_PROCESSING_SECONDARY }}
   RUNTIME_SERVICE_ACCOUNT: ${{ vars.RUNTIME_SERVICE_ACCOUNT }}
   NODE_ENV: production
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+  GCS_UPLOAD_BUCKET: ${{ vars.GCS_UPLOAD_BUCKET }}
+  CLOUD_SQL_INSTANCE: ${{ vars.CLOUD_SQL_INSTANCE }}
+  VITE_API_URL: ${{ vars.VITE_API_URL }}
 
 jobs:
   deploy:
@@ -28,9 +35,45 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate deployment configuration
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          missing=0
+          required_variables=(
+            PROJECT_ID
+            GCP_REGION
+            ARTIFACT_REPOSITORY
+            BACKEND_SERVICE
+            FRONTEND_SERVICE
+            VERTEX_AI_LOCATION
+            VERTEX_AI_IMAGE_PROCESSING_PRIMARY
+            VERTEX_AI_IMAGE_PROCESSING_SECONDARY
+            RUNTIME_SERVICE_ACCOUNT
+            GOOGLE_CLIENT_ID
+            GCS_UPLOAD_BUCKET
+            CLOUD_SQL_INSTANCE
+            VITE_API_URL
+          )
+
+          for variable_name in "${required_variables[@]}"; do
+            if [[ -z "${!variable_name}" ]]; then
+              echo "::error::Missing GitHub Actions repository variable: ${variable_name}"
+              missing=1
+            fi
+          done
+
+          if [[ -z "${GCP_SA_KEY}" ]]; then
+            echo "::error::Missing GitHub Actions repository secret: GCP_SA_KEY"
+            missing=1
+          fi
+
+          exit "$missing"
+
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
+          project_id: ${{ env.PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up gcloud
@@ -65,20 +108,8 @@ jobs:
 
       - name: Deploy backend
         run: |
-          ENV_VARS="NODE_ENV=production,GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }},GEMINI_MODEL=${GEMINI_MODEL},GCS_UPLOAD_BUCKET=${{ vars.GCS_UPLOAD_BUCKET }},ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }},ADMIN_NAME=${{ vars.ADMIN_NAME || 'Rishta Admin' }}"
-          SECRET_VARS="DATABASE_URL=${{ vars.DATABASE_URL_SECRET || 'rishta-database-url' }}:latest,JWT_SECRET=${{ vars.JWT_SECRET_SECRET || 'rishta-jwt-secret' }}:latest,GEMINI_API_KEY=${{ vars.GEMINI_API_KEY_SECRET || 'rishta-gemini-api-key' }}:latest"
-          RUNTIME_SA="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
-
-          if [ -n "${{ vars.ADMIN_PASSWORD_SECRET }}" ]; then
-            SECRET_VARS="${SECRET_VARS},ADMIN_PASSWORD=${{ vars.ADMIN_PASSWORD_SECRET }}:latest"
-          else
-            ENV_VARS="${ENV_VARS},ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
-          fi
-
-          SQL_ARGS=()
-          if [ -n "${{ vars.CLOUD_SQL_INSTANCE }}" ]; then
-            SQL_ARGS+=(--add-cloudsql-instances "${{ vars.CLOUD_SQL_INSTANCE }}")
-          fi
+          ENV_VARS="NODE_ENV=${NODE_ENV},GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID},GCP_PROJECT_ID=${PROJECT_ID},VERTEX_AI_LOCATION=${VERTEX_AI_LOCATION},VERTEX_AI_IMAGE_PROCESSING_PRIMARY=${VERTEX_AI_IMAGE_PROCESSING_PRIMARY},VERTEX_AI_IMAGE_PROCESSING_SECONDARY=${VERTEX_AI_IMAGE_PROCESSING_SECONDARY},GCS_UPLOAD_BUCKET=${GCS_UPLOAD_BUCKET}"
+          SECRET_VARS="DATABASE_URL=rishta-database-url:latest,JWT_SECRET=rishta-jwt-secret:latest"
 
           gcloud run deploy "${BACKEND_SERVICE}" \
             --image "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${BACKEND_SERVICE}:${GITHUB_SHA}" \
@@ -89,15 +120,13 @@ jobs:
             --memory 512Mi \
             --min-instances 0 \
             --max-instances 1 \
-            --service-account "${RUNTIME_SA}" \
+            --service-account "${RUNTIME_SERVICE_ACCOUNT}" \
+            --add-cloudsql-instances "${CLOUD_SQL_INSTANCE}" \
             --set-env-vars "${ENV_VARS}" \
-            --set-secrets "${SECRET_VARS}" \
-            "${SQL_ARGS[@]}"
+            --set-secrets "${SECRET_VARS}"
 
       - name: Deploy frontend
         run: |
-          RUNTIME_SA="${RUNTIME_SERVICE_ACCOUNT:-github-deploy@${PROJECT_ID}.iam.gserviceaccount.com}"
-
           gcloud run deploy "${FRONTEND_SERVICE}" \
             --image "${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/${FRONTEND_SERVICE}:${GITHUB_SHA}" \
             --region "${FRONTEND_REGION}" \
@@ -107,5 +136,4 @@ jobs:
             --memory 512Mi \
             --min-instances 0 \
             --max-instances 1 \
-            --service-account "${RUNTIME_SA}" \
-            --set-env-vars "VITE_API_URL=${{ vars.VITE_API_URL }},VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}"
+            --set-env-vars "VITE_API_URL=${VITE_API_URL},VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"

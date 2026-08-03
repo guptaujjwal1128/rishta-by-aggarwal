@@ -1,13 +1,4 @@
 {
   "name": "rishta-by-aggarwal",
-  "private": true,
-  "scripts": {
-    "build:backend": "scripts/build-backend.sh",
-    "build:frontend": "scripts/build-frontend.sh",
-    "build:images": "scripts/build-backend.sh && scripts/build-frontend.sh",
-    "push:images": "scripts/push-images.sh",
-    "deploy:backend": "scripts/deploy-backend.sh",
-    "deploy:frontend": "scripts/deploy-frontend.sh",
-    "deploy:all": "scripts/deploy-all.sh"
-  }
+  "private": true
 }

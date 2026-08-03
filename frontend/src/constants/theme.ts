@@ -175,14 +175,16 @@ export const THEME_OPTIONS: ThemeOptions = {
       styleOverrides: {
         root: {
           backgroundImage: "none",
-          transition: "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
+          transition:
+            "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          transition: "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
+          transition:
+            "border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease",
         },
       },
     },

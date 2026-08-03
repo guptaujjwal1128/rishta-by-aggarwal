@@ -19,6 +19,13 @@ import {
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import Header from "../../components/molecule/layout/header/Header";
+import { useAuth } from "../../context/AuthContext";
+import {
+  hasPermission,
+  Permissions,
+  permissionValues,
+  type Permission,
+} from "../../constants/permissions";
 import {
   adminListUsers,
   adminNotifyUser,
@@ -28,6 +35,7 @@ import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type { AdminUser } from "../../types/domain";
 
 const Users = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [notifyUser, setNotifyUser] = useState<AdminUser | null>(null);
   const [notifyForm, setNotifyForm] = useState({
@@ -37,6 +45,14 @@ const Users = () => {
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const canManageAccess = hasPermission(
+    currentUser,
+    Permissions.USERS_MANAGE_ACCESS,
+  );
+  const canSendNotifications = hasPermission(
+    currentUser,
+    Permissions.NOTIFICATIONS_SEND,
+  );
 
   const load = async () => {
     const { users: nextUsers } = await adminListUsers();
@@ -44,9 +60,13 @@ const Users = () => {
   };
 
   useEffect(() => {
-    void load().catch((err) => {
-      setError(err instanceof Error ? err.message : "Could not load users");
-    });
+    void adminListUsers()
+      .then(({ users: nextUsers }) => {
+        setUsers(nextUsers);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Could not load users");
+      });
   }, []);
 
   const toggleEdit = async (user: AdminUser) => {
@@ -57,6 +77,38 @@ const Users = () => {
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update user");
+    }
+  };
+
+  const toggleRole = async (user: AdminUser) => {
+    setError("");
+    setMessage("");
+    try {
+      await adminUpdateUser(user.id, {
+        role: user.role === "admin" ? "user" : "admin",
+        permissions: user.role === "admin" ? {} : user.permissions,
+      });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update role");
+    }
+  };
+
+  const togglePermission = async (user: AdminUser, permission: Permission) => {
+    setError("");
+    setMessage("");
+    try {
+      await adminUpdateUser(user.id, {
+        permissions: {
+          ...user.permissions,
+          [permission]: user.permissions[permission] !== true,
+        },
+      });
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not update permissions",
+      );
     }
   };
 
@@ -166,27 +218,58 @@ const Users = () => {
                     </Stack>
                   </Box>
 
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    gap={1}
-                    alignItems={{ xs: "stretch", sm: "center" }}
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={user.canEditBio !== false}
-                          onChange={() => void toggleEdit(user)}
-                        />
-                      }
-                      label="Can edit bio"
-                    />
-                    <Button
-                      variant="outlined"
-                      startIcon={<NotificationsIcon />}
-                      onClick={() => openNotify(user)}
-                    >
-                      Notify
-                    </Button>
+                  <Stack direction="column" gap={1} alignItems="stretch">
+                    <Stack direction={{ xs: "column", sm: "row" }} gap={1}>
+                      {canManageAccess ? (
+                        <>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={user.canEditBio !== false}
+                                onChange={() => void toggleEdit(user)}
+                              />
+                            }
+                            label="Can edit bio"
+                          />
+                          <Button
+                            variant="outlined"
+                            disabled={user.id === currentUser?.id}
+                            onClick={() => void toggleRole(user)}
+                          >
+                            Make {user.role === "admin" ? "user" : "admin"}
+                          </Button>
+                        </>
+                      ) : null}
+                      {canSendNotifications ? (
+                        <Button
+                          variant="outlined"
+                          startIcon={<NotificationsIcon />}
+                          onClick={() => openNotify(user)}
+                        >
+                          Notify
+                        </Button>
+                      ) : null}
+                    </Stack>
+                    {canManageAccess && user.role === "admin" ? (
+                      <Stack direction="row" gap={0.5} flexWrap="wrap">
+                        {permissionValues.map((permission) => (
+                          <FormControlLabel
+                            key={permission}
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={user.permissions[permission] === true}
+                                disabled={user.id === currentUser?.id}
+                                onChange={() =>
+                                  void togglePermission(user, permission)
+                                }
+                              />
+                            }
+                            label={permission}
+                          />
+                        ))}
+                      </Stack>
+                    ) : null}
                   </Stack>
                 </Stack>
               ))}

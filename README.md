@@ -5,7 +5,7 @@ Matrimonial biodata application with:
 - React/Vite frontend
 - Node/Express backend
 - PostgreSQL database
-- Gemini biodata extraction
+- Vertex AI biodata extraction
 - Admin dashboard, profile verification, PDF biodata download, and photo uploads
 
 ## Run Locally
@@ -56,98 +56,29 @@ Frontend runs at:
 http://127.0.0.1:5173
 ```
 
-## Local Build
+## Checks
 
-Frontend:
+Frontend build:
 
 ```bash
 cd frontend
+npm run format && npm run lint
 npm run build
 ```
 
-Backend syntax check:
+Backend lint and formatting check:
 
 ```bash
-find backend/src -name '*.js' -print | xargs -n 1 node -c
-node -c backend/index.js
-```
-
-Docker images:
-
-```bash
-npm run build:images
-```
-
-Or separately:
-
-```bash
-npm run build:backend
-npm run build:frontend
+cd backend
+npm run check
 ```
 
 ## Deploy
 
-This assumes GCP resources already exist:
+GitHub Actions is the single deployment path:
 
-- Artifact Registry Docker repo
-- Cloud Run services or permission to create them
-- Cloud SQL database
-- Secret Manager secrets
-- Cloud Storage bucket
-
-1. Create deployment env:
-
-```bash
-cp deploy/.env.example deploy/.env
-```
-
-2. Fill:
-
-```text
-deploy/.env
-```
-
-3. Authenticate Docker to Artifact Registry:
-
-```bash
-gcloud auth configure-docker asia-south2-docker.pkg.dev
-```
-
-Use your actual region if different.
-
-This project uses a split-region Cloud Run setup for custom domain support:
-
-```text
-ARTIFACT_REGION=asia-south2
-BACKEND_REGION=asia-south2
-FRONTEND_REGION=asia-southeast1
-```
-
-The backend stays near Cloud SQL in `asia-south2`. The frontend runs in `asia-southeast1` so `rishtabyaggarwal.in` can be mapped directly to Cloud Run.
-
-4. Build, push, and deploy:
-
-```bash
-npm run deploy:all
-```
-
-Or step-by-step:
-
-```bash
-npm run build:images
-npm run push:images
-npm run deploy:backend
-npm run deploy:frontend
-```
-
-The deploy scripts use low-cost Cloud Run settings:
-
-```text
-CPU: 1
-Memory: 512Mi
-Min instances: 0
-Max instances: 1
-```
+- Pushes to `main` deploy automatically.
+- For a manual deployment, open the `Deploy to GCP` workflow in GitHub Actions and select **Run workflow**.
 
 ## CI/CD
 
@@ -159,45 +90,26 @@ GitHub Actions workflow:
 
 It runs on pushes to `main`.
 
-Required GitHub Actions secret:
+Required GitHub Actions repository variables:
+
+```text
+GCP_PROJECT_ID
+GCP_REGION
+ARTIFACT_REPOSITORY
+BACKEND_SERVICE
+FRONTEND_SERVICE
+VERTEX_AI_LOCATION
+VERTEX_AI_IMAGE_PROCESSING_PRIMARY
+VERTEX_AI_IMAGE_PROCESSING_SECONDARY
+RUNTIME_SERVICE_ACCOUNT
+GOOGLE_CLIENT_ID
+CLOUD_SQL_INSTANCE
+GCS_UPLOAD_BUCKET
+VITE_API_URL
+```
+
+Required GitHub Actions repository secret:
 
 ```text
 GCP_SA_KEY
 ```
-
-Required GitHub Actions variables are the same values shown in:
-
-```text
-deploy/.env.example
-```
-
-For Cloud Run secret access, set this variable to the service account that should run the containers:
-
-```text
-RUNTIME_SERVICE_ACCOUNT=github-deploy@rishta-by-aggarwal.iam.gserviceaccount.com
-```
-
-That runtime service account needs access to Secret Manager secrets and Cloud SQL.
-
-For the custom domain setup, set these GitHub Actions variables:
-
-```text
-ARTIFACT_REGION=asia-south2
-BACKEND_REGION=asia-south2
-FRONTEND_REGION=asia-southeast1
-VITE_API_URL=https://rishta-api-1084232234514.asia-south2.run.app/api
-```
-
-Map `rishtabyaggarwal.in` and `www.rishtabyaggarwal.in` to the frontend Cloud Run service in `asia-southeast1`.
-
-## Runtime Config
-
-Backend reads runtime env vars from `process.env`.
-
-Frontend reads public runtime config from:
-
-```text
-/env.js
-```
-
-Never put backend secrets in frontend env.

@@ -19,11 +19,17 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 import Header from "../../components/molecule/layout/header/Header";
+import { hasPermission, Permissions } from "../../constants/permissions";
+import { AppRoutes } from "../../constants/routes";
+import { useAuth } from "../../context/AuthContext";
+import useNavigation from "../../hooks/useNavigation";
 import { adminListUsers } from "../../services/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type { AdminUser } from "../../types/domain";
 
 const UserDetails = () => {
+  const { user: currentUser } = useAuth();
+  const { goTo } = useNavigation();
   const { id } = useParams();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,22 +138,54 @@ const UserDetails = () => {
                     }
                     label="User can edit biodata"
                   />
+                  {user.role === "admin" ? (
+                    <Stack direction="row" gap={0.75} flexWrap="wrap">
+                      {Object.keys(user.permissions).map((permission) => (
+                        <Chip
+                          key={permission}
+                          size="small"
+                          label={permission}
+                        />
+                      ))}
+                    </Stack>
+                  ) : null}
                   <Stack direction={{ xs: "column", sm: "row" }} gap={1}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<NotificationsIcon />}
-                    >
-                      Send reminder
-                    </Button>
-                    <Button variant="outlined" startIcon={<LockIcon />}>
-                      {user.profileLocked ? "Unlock profile" : "Lock profile"}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      startIcon={<VerifiedUserIcon />}
-                    >
-                      Review profile
-                    </Button>
+                    {hasPermission(
+                      currentUser,
+                      Permissions.NOTIFICATIONS_SEND,
+                    ) ? (
+                      <Button
+                        variant="outlined"
+                        startIcon={<NotificationsIcon />}
+                        onClick={() => {
+                          void goTo(AppRoutes.ADMIN_QUERIES);
+                        }}
+                      >
+                        Send reminder
+                      </Button>
+                    ) : null}
+                    {hasPermission(currentUser, Permissions.PROFILES_LOCK) ? (
+                      <Button
+                        variant="outlined"
+                        startIcon={<LockIcon />}
+                        onClick={() => {
+                          void goTo(AppRoutes.ADMIN_DASHBOARD);
+                        }}
+                      >
+                        {user.profileLocked ? "Unlock profile" : "Lock profile"}
+                      </Button>
+                    ) : null}
+                    {hasPermission(currentUser, Permissions.PROFILES_READ) ? (
+                      <Button
+                        variant="contained"
+                        startIcon={<VerifiedUserIcon />}
+                        onClick={() => {
+                          void goTo(AppRoutes.ADMIN_DASHBOARD);
+                        }}
+                      >
+                        Review profile
+                      </Button>
+                    ) : null}
                   </Stack>
                   <Alert severity="info">
                     Use the Users page for live edit-permission changes and

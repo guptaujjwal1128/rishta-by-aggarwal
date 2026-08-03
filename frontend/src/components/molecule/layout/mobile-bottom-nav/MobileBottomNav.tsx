@@ -13,6 +13,11 @@ import {
   type AppRoutes as AppRoutePath,
 } from "../../../../constants/routes";
 import { useAuth } from "../../../../context/AuthContext";
+import {
+  hasPermission,
+  Permissions,
+  type Permission,
+} from "../../../../constants/permissions";
 import useNavigation from "../../../../hooks/useNavigation";
 
 const MobileBottomNav = () => {
@@ -24,26 +29,39 @@ const MobileBottomNav = () => {
     return null;
   }
 
-  const items: Array<{ label: string; path: AppRoutePath; icon: ReactNode }> =
+  const items: {
+    label: string;
+    path: AppRoutePath;
+    icon: ReactNode;
+    permission?: Permission;
+  }[] =
     user.role === "admin"
       ? [
           {
             label: "Admin",
             path: AppRoutes.ADMIN_DASHBOARD,
             icon: <AdminPanelSettingsIcon />,
+            permission: Permissions.ADMIN_DASHBOARD_VIEW,
           },
-          { label: "Users", path: AppRoutes.ADMIN_USERS, icon: <GroupIcon /> },
+          {
+            label: "Users",
+            path: AppRoutes.ADMIN_USERS,
+            icon: <GroupIcon />,
+            permission: Permissions.USERS_READ,
+          },
           {
             label: "Messages",
             path: AppRoutes.ADMIN_QUERIES,
             icon: <EmailIcon />,
+            permission: Permissions.NOTIFICATIONS_SEND,
           },
           {
             label: "Settings",
             path: AppRoutes.ADMIN_SETTINGS,
             icon: <SettingsIcon />,
+            permission: Permissions.ADMIN_SETTINGS_READ,
           },
-        ]
+        ].filter((item) => hasPermission(user, item.permission))
       : [
           {
             label: "Gallery",

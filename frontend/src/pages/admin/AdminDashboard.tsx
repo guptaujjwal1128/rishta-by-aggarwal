@@ -21,6 +21,8 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import RemoveDoneIcon from "@mui/icons-material/RemoveDone";
 
 import Header from "../../components/molecule/layout/header/Header";
+import { hasPermission, Permissions } from "../../constants/permissions";
+import { useAuth } from "../../context/AuthContext";
 import {
   adminCreateReviewedProfiles,
   adminListProfiles,
@@ -30,9 +32,14 @@ import {
   adminStats,
 } from "../../services/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
-import type { AdminStats, Profile, ProfileDraft } from "../../types/domain";
+import type {
+  AdminStats,
+  ExtractionConfidence,
+  Profile,
+  ProfileDraft,
+} from "../../types/domain";
 
-const completionFields: Array<keyof ProfileDraft> = [
+const completionFields: (keyof ProfileDraft)[] = [
   "fullName",
   "profileType",
   "dateOfBirth",
@@ -51,12 +58,22 @@ function completionFor(profile: ProfileDraft | Profile) {
   return Math.round((filled.length / completionFields.length) * 100);
 }
 
+interface ReviewProfile {
+  clientId: string;
+  profile: ProfileDraft;
+  confidence?: ExtractionConfidence;
+}
+
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  const canImport = hasPermission(user, Permissions.PROFILES_IMPORT);
+  const canLock = hasPermission(user, Permissions.PROFILES_LOCK);
+  const canVerify = hasPermission(user, Permissions.PROFILES_VERIFY);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>([]);
   const [bulkText, setBulkText] = useState("");
-  const [reviewProfiles, setReviewProfiles] = useState<ProfileDraft[]>([]);
+  const [reviewProfiles, setReviewProfiles] = useState<ReviewProfile[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,7 +98,7 @@ const AdminDashboard = () => {
   }, []);
 
   const handleBulkFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
     if (!files.length) {
       return;
@@ -90,10 +107,20 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { drafts, sourceType } = await adminPreviewBulkProfiles(files);
-      setReviewProfiles(drafts);
+      const { drafts, extractions, sourceType } =
+        await adminPreviewBulkProfiles(files);
+      setReviewProfiles(
+        drafts.map((profile, index) => ({
+          clientId: crypto.randomUUID(),
+          profile,
+          confidence: extractions?.[index],
+        })),
+      );
+      const fallbackCount = extractions?.filter(
+        (item) => item.secondaryUsed,
+      ).length;
       setMessage(
-        `Extracted ${drafts.length} profile${drafts.length === 1 ? "" : "s"} for review (${sourceType}). Nothing has been saved yet.`,
+        `Extracted ${drafts.length} profile${drafts.length === 1 ? "" : "s"} for review (${sourceType}).${fallbackCount ? ` Secondary model used for ${fallbackCount}.` : ""} Nothing has been saved yet.`,
       );
     } catch (err) {
       setError(
@@ -109,14 +136,19 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { drafts, sourceType } = await adminPreviewBulkProfiles(
-        undefined,
-        bulkText,
-      );
+      const { drafts, extractions, sourceType } =
+        await adminPreviewBulkProfiles(undefined, bulkText);
       setBulkText("");
-      setReviewProfiles(drafts);
+      setReviewProfiles(
+        drafts.map((profile, index) => ({
+          clientId: crypto.randomUUID(),
+          profile,
+          confidence: extractions?.[index],
+        })),
+      );
+      const score = extractions?.[0]?.score;
       setMessage(
-        `Extracted ${drafts.length} profile${drafts.length === 1 ? "" : "s"} for review (${sourceType}). Nothing has been saved yet.`,
+        `Extracted ${drafts.length} profile${drafts.length === 1 ? "" : "s"} for review (${sourceType})${score === undefined ? "" : ` at ${Math.round(score * 100)}% confidence`}. Nothing has been saved yet.`,
       );
     } catch (err) {
       setError(
@@ -133,8 +165,13 @@ const AdminDashboard = () => {
     value: string,
   ) => {
     setReviewProfiles((current) =>
-      current.map((profile, profileIndex) =>
-        profileIndex === index ? { ...profile, [field]: value } : profile,
+      current.map((reviewProfile, profileIndex) =>
+        profileIndex === index
+          ? {
+              ...reviewProfile,
+              profile: { ...reviewProfile.profile, [field]: value },
+            }
+          : reviewProfile,
       ),
     );
   };
@@ -153,7 +190,9 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { created } = await adminCreateReviewedProfiles(reviewProfiles);
+      const { created } = await adminCreateReviewedProfiles(
+        reviewProfiles.map(({ profile }) => profile),
+      );
       setReviewProfiles([]);
       setMessage(
         `Saved ${created.length} reviewed profile${created.length === 1 ? "" : "s"} as unverified.`,
@@ -395,7 +434,7 @@ const AdminDashboard = () => {
                   variant="contained"
                   component="label"
                   startIcon={<UploadFileIcon />}
-                  disabled={extracting || loading}
+                  disabled={!canImport || extracting || loading}
                   sx={{ minHeight: 44 }}
                 >
                   {extracting ? "Extracting..." : "AI extract files"}
@@ -404,7 +443,9 @@ const AdminDashboard = () => {
                     multiple
                     type="file"
                     accept=".json,.txt,.csv,.pdf,.png,.jpg,.jpeg,.webp,application/json,text/plain,text/csv,application/pdf,image/*"
-                    onChange={handleBulkFile}
+                    onChange={(event) => {
+                      void handleBulkFile(event);
+                    }}
                   />
                 </Button>
                 <TextField
@@ -416,10 +457,13 @@ const AdminDashboard = () => {
                   maxRows={2}
                   fullWidth
                   placeholder="Optional: paste raw biodata text"
+                  disabled={!canImport}
                 />
                 <Button
                   variant="outlined"
-                  disabled={extracting || loading || !bulkText.trim()}
+                  disabled={
+                    !canImport || extracting || loading || !bulkText.trim()
+                  }
                   onClick={() => void handleBulkText()}
                   sx={{ minHeight: 44, whiteSpace: "nowrap" }}
                 >
@@ -450,113 +494,138 @@ const AdminDashboard = () => {
                       </Button>
                       <Button
                         variant="contained"
-                        disabled={loading}
+                        disabled={!canImport || loading}
                         onClick={() => void saveReviewedProfiles()}
                       >
                         Save reviewed profiles
                       </Button>
                     </Stack>
                   </Stack>
-                  {reviewProfiles.map((profile, index) => (
-                    <Paper
-                      key={`${profile.fullName || "profile"}-${index}`}
-                      elevation={0}
-                      sx={{
-                        border: "1px solid",
-                        borderColor: "border.secondary",
-                        borderRadius: 1,
-                        p: 2,
-                      }}
-                    >
-                      <Stack gap={2}>
-                        <Stack
-                          direction={{ xs: "column", sm: "row" }}
-                          justifyContent="space-between"
-                          gap={1}
-                        >
-                          <Box flex={1}>
-                            <Stack
-                              direction="row"
-                              gap={1}
-                              alignItems="center"
-                              flexWrap="wrap"
-                            >
-                              <Typography variant="body2Bold">
-                                Review profile {index + 1}
-                              </Typography>
-                              <Chip
-                                size="small"
-                                color={
-                                  completionFor(profile) < 80
-                                    ? "warning"
-                                    : "success"
-                                }
-                                label={`${completionFor(profile)}% complete`}
-                              />
-                            </Stack>
-                            <LinearProgress
-                              variant="determinate"
-                              value={completionFor(profile)}
-                              sx={{
-                                mt: 1,
-                                height: 6,
-                                borderRadius: 3,
-                                maxWidth: 320,
-                              }}
-                            />
-                          </Box>
-                          <Button
-                            color="error"
-                            size="small"
-                            onClick={() => removeReviewProfile(index)}
+                  {reviewProfiles.map(
+                    ({ clientId, profile, confidence }, index) => (
+                      <Paper
+                        key={clientId}
+                        elevation={0}
+                        sx={{
+                          border: "1px solid",
+                          borderColor: "border.secondary",
+                          borderRadius: 1,
+                          p: 2,
+                        }}
+                      >
+                        <Stack gap={2}>
+                          <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            justifyContent="space-between"
+                            gap={1}
                           >
-                            Remove
-                          </Button>
-                        </Stack>
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: {
-                              xs: "1fr",
-                              md: "repeat(3, minmax(0, 1fr))",
-                            },
-                            gap: 1.5,
-                          }}
-                        >
-                          {[
-                            ["fullName", "Name"],
-                            ["profileType", "Profile"],
-                            ["dateOfBirth", "DOB"],
-                            ["height", "Height"],
-                            ["complexion", "Complexion"],
-                            ["caste", "Caste"],
-                            ["education", "Education"],
-                            ["occupation", "Occupation"],
-                            ["annualIncome", "Annual income"],
-                            ["residence", "Residence"],
-                            ["city", "City"],
-                            ["contactPhone", "Phone"],
-                          ].map(([field, label]) => (
-                            <TextField
-                              key={field}
+                            <Box flex={1}>
+                              <Stack
+                                direction="row"
+                                gap={1}
+                                alignItems="center"
+                                flexWrap="wrap"
+                              >
+                                <Typography variant="body2Bold">
+                                  Review profile {index + 1}
+                                </Typography>
+                                <Chip
+                                  size="small"
+                                  color={
+                                    completionFor(profile) < 80
+                                      ? "warning"
+                                      : "success"
+                                  }
+                                  label={`${completionFor(profile)}% complete`}
+                                />
+                                {confidence ? (
+                                  <Chip
+                                    size="small"
+                                    color={
+                                      confidence.level === "high"
+                                        ? "success"
+                                        : confidence.level === "medium"
+                                          ? "warning"
+                                          : "error"
+                                    }
+                                    label={`${Math.round(confidence.score * 100)}% extraction confidence${confidence.secondaryUsed ? " · fallback used" : ""}`}
+                                  />
+                                ) : null}
+                              </Stack>
+                              <LinearProgress
+                                variant="determinate"
+                                value={completionFor(profile)}
+                                sx={{
+                                  mt: 1,
+                                  height: 6,
+                                  borderRadius: 3,
+                                  maxWidth: 320,
+                                }}
+                              />
+                            </Box>
+                            <Button
+                              color="error"
                               size="small"
-                              label={label}
-                              value={String(
-                                profile[field as keyof ProfileDraft] ?? "",
-                              )}
-                              onChange={(event) =>
-                                updateReviewProfile(
-                                  index,
-                                  field as keyof ProfileDraft,
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          ))}
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  ))}
+                              onClick={() => removeReviewProfile(index)}
+                            >
+                              Remove
+                            </Button>
+                          </Stack>
+                          <Box
+                            sx={{
+                              display: "grid",
+                              gridTemplateColumns: {
+                                xs: "1fr",
+                                md: "repeat(3, minmax(0, 1fr))",
+                              },
+                              gap: 1.5,
+                            }}
+                          >
+                            {[
+                              ["fullName", "Name"],
+                              ["profileType", "Profile"],
+                              ["dateOfBirth", "DOB"],
+                              ["height", "Height"],
+                              ["complexion", "Complexion"],
+                              ["caste", "Caste"],
+                              ["education", "Education"],
+                              ["occupation", "Occupation"],
+                              ["annualIncome", "Annual income"],
+                              ["residence", "Residence"],
+                              ["city", "City"],
+                              ["contactPhone", "Phone"],
+                            ].map(([field, label]) => (
+                              <TextField
+                                key={field}
+                                size="small"
+                                label={label}
+                                value={String(
+                                  profile[field as keyof ProfileDraft] ?? "",
+                                )}
+                                error={
+                                  confidence?.fieldScores[field] !==
+                                    undefined &&
+                                  confidence.fieldScores[field] < 0.65
+                                }
+                                helperText={
+                                  confidence?.fieldScores[field] === undefined
+                                    ? undefined
+                                    : `${Math.round(confidence.fieldScores[field] * 100)}% confidence`
+                                }
+                                onChange={(event) =>
+                                  updateReviewProfile(
+                                    index,
+                                    field as keyof ProfileDraft,
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            ))}
+                          </Box>
+                        </Stack>
+                      </Paper>
+                    ),
+                  )}
                 </Stack>
               ) : null}
             </Stack>
@@ -593,34 +662,38 @@ const AdminDashboard = () => {
                   >
                     {allSelected ? "Clear selection" : "Select all"}
                   </Button>
-                  <Button
-                    variant="outlined"
-                    disabled={loading || !selectedProfileIds.length}
-                    startIcon={
-                      selectedAllLocked ? <LockOpenIcon /> : <LockIcon />
-                    }
-                    onClick={() => void bulkSetLock(!selectedAllLocked)}
-                  >
-                    {selectedAllLocked ? "Unlock selected" : "Lock selected"}
-                  </Button>
-                  <Button
-                    variant="contained"
-                    disabled={loading || !selectedProfileIds.length}
-                    startIcon={
-                      selectedAllVerified ? (
-                        <RemoveDoneIcon />
-                      ) : (
-                        <VerifiedIcon />
-                      )
-                    }
-                    onClick={() =>
-                      void bulkSetVerification(!selectedAllVerified)
-                    }
-                  >
-                    {selectedAllVerified
-                      ? "Unverify selected"
-                      : "Verify selected"}
-                  </Button>
+                  {canLock ? (
+                    <Button
+                      variant="outlined"
+                      disabled={loading || !selectedProfileIds.length}
+                      startIcon={
+                        selectedAllLocked ? <LockOpenIcon /> : <LockIcon />
+                      }
+                      onClick={() => void bulkSetLock(!selectedAllLocked)}
+                    >
+                      {selectedAllLocked ? "Unlock selected" : "Lock selected"}
+                    </Button>
+                  ) : null}
+                  {canVerify ? (
+                    <Button
+                      variant="contained"
+                      disabled={loading || !selectedProfileIds.length}
+                      startIcon={
+                        selectedAllVerified ? (
+                          <RemoveDoneIcon />
+                        ) : (
+                          <VerifiedIcon />
+                        )
+                      }
+                      onClick={() =>
+                        void bulkSetVerification(!selectedAllVerified)
+                      }
+                    >
+                      {selectedAllVerified
+                        ? "Unverify selected"
+                        : "Verify selected"}
+                    </Button>
+                  ) : null}
                 </Stack>
               </Stack>
               {profiles.map((profile) => (
@@ -692,32 +765,36 @@ const AdminDashboard = () => {
                     ) : (
                       <Chip label="Editable" />
                     )}
-                    <Button
-                      size="small"
-                      variant={profile.isVerified ? "outlined" : "contained"}
-                      startIcon={
-                        profile.isVerified ? (
-                          <RemoveDoneIcon />
-                        ) : (
-                          <VerifiedIcon />
-                        )
-                      }
-                      onClick={() =>
-                        void setVerification(profile, !profile.isVerified)
-                      }
-                    >
-                      {profile.isVerified ? "Unverify" : "Verify"}
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={
-                        profile.isLocked ? <LockOpenIcon /> : <LockIcon />
-                      }
-                      onClick={() => void toggleLock(profile)}
-                    >
-                      {profile.isLocked ? "Unlock" : "Lock"}
-                    </Button>
+                    {canVerify ? (
+                      <Button
+                        size="small"
+                        variant={profile.isVerified ? "outlined" : "contained"}
+                        startIcon={
+                          profile.isVerified ? (
+                            <RemoveDoneIcon />
+                          ) : (
+                            <VerifiedIcon />
+                          )
+                        }
+                        onClick={() =>
+                          void setVerification(profile, !profile.isVerified)
+                        }
+                      >
+                        {profile.isVerified ? "Unverify" : "Verify"}
+                      </Button>
+                    ) : null}
+                    {canLock ? (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={
+                          profile.isLocked ? <LockOpenIcon /> : <LockIcon />
+                        }
+                        onClick={() => void toggleLock(profile)}
+                      >
+                        {profile.isLocked ? "Unlock" : "Lock"}
+                      </Button>
+                    ) : null}
                   </Stack>
                 </Stack>
               ))}

@@ -8,13 +8,25 @@ export interface User {
   role: "user" | "admin";
   authProvider: AuthProvider;
   canEditBio?: boolean;
-  permissions?: Record<string, boolean>;
+  permissions: Record<string, boolean>;
   createdAt: string;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface ExtractionConfidence {
+  score: number;
+  level: "high" | "medium" | "low";
+  fieldScores: Record<string, number>;
+  threshold: number;
+  modelTier: "primary" | "secondary" | "none";
+  secondaryUsed: boolean;
+  secondaryAttempted?: boolean;
+  primaryScore?: number;
+  secondaryFailed?: boolean;
 }
 
 export interface ProfilePhoto {
@@ -29,7 +41,7 @@ export interface ProfilePhoto {
 export interface Profile {
   id?: string;
   userId?: string;
-  profileType?: "bride" | "groom" | string;
+  profileType?: "bride" | "groom";
   fullName?: string;
   gender?: string;
   dateOfBirth?: string;
@@ -112,7 +124,7 @@ export interface AdminUser extends User {
 export interface NotificationRecord {
   id: string;
   userId: string;
-  channel: "app" | "email" | "whatsapp" | string;
+  channel: "app" | "email" | "whatsapp";
   title: string;
   message: string;
   status: string;

@@ -28,7 +28,9 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/profiles", profileRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ message: `Route not found: ${req.method} ${req.path}` });
+  res
+    .status(404)
+    .json({ message: `Route not found: ${req.method} ${req.path}` });
 });
 
 app.use((err, _req, res, _next) => {

@@ -10,7 +10,7 @@ export interface RequireRoleProps {
 const RequireRole = ({ role }: RequireRoleProps) => {
   const { user } = useAuth();
 
-  if (!user || user.role !== role) {
+  if (user?.role !== role) {
     return <Navigate to={AppRoutes.DASHBOARD} replace />;
   }
 

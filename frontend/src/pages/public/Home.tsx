@@ -35,8 +35,7 @@ const Home = () => {
         <ContentContainer
           component="section"
           sx={(theme) => ({
-            background:
-              `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)}, ${alpha(theme.palette.tertiary.main, 0.13)})`,
+            background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)}, ${alpha(theme.palette.tertiary.main, 0.13)})`,
           })}
         >
           <Content sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}>
@@ -52,8 +51,7 @@ const Home = () => {
         <ContentContainer
           component="section"
           sx={(theme) => ({
-            background:
-              `linear-gradient(180deg, ${alpha(theme.palette.tertiary.main, 0.14)}, ${alpha(theme.palette.secondary.main, 0.08)})`,
+            background: `linear-gradient(180deg, ${alpha(theme.palette.tertiary.main, 0.14)}, ${alpha(theme.palette.secondary.main, 0.08)})`,
           })}
         >
           <Content sx={{ py: { xs: 5, sm: 7 }, px: { xs: 2, sm: 4 } }}>

@@ -1,7 +1,7 @@
 import {
   createContext,
   useCallback,
-  useContext,
+  use,
   useEffect,
   useMemo,
   useState,
@@ -43,12 +43,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initialToken] = useState(getStoredToken);
+  const [loading, setLoading] = useState(Boolean(initialToken));
 
   useEffect(() => {
-    const token = getStoredToken();
-    if (!token) {
-      setLoading(false);
+    if (!initialToken) {
       return;
     }
 
@@ -62,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [initialToken]);
 
   const completeAuth = useCallback((token: string, currentUser: User) => {
     setStoredToken(token);
@@ -121,11 +120,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [loading, login, logout, register, socialLogin, user],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext value={value}>{children}</AuthContext>;
 };
 
 export function useAuth() {
-  const value = useContext(AuthContext);
+  const value = use(AuthContext);
   if (!value) {
     throw new Error("useAuth must be used inside AuthProvider");
   }

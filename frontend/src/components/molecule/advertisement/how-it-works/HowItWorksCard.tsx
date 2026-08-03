@@ -26,7 +26,8 @@ const HowItWorksCard = ({
         borderRadius: theme.spacing(1),
         backgroundColor: "rgba(255, 255, 255, 0.78)",
         boxShadow: "0 16px 38px rgba(83, 45, 25, 0.07)",
-        transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+        transition:
+          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
         "&:hover": {
           transform: "translateY(-3px)",
           borderColor: theme.palette.border.primary,

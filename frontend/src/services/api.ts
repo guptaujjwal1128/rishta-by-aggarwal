@@ -3,6 +3,7 @@ import type {
   AdminStats,
   AdminUser,
   NotificationRecord,
+  ExtractionConfidence,
   Profile,
   ProfileDraft,
   ProfileFilters,
@@ -55,7 +56,10 @@ async function parseMessage(response: Response) {
   }
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const headers = new Headers(options.headers);
   const isFormData = options.body instanceof FormData;
 
@@ -123,14 +127,18 @@ export async function getMe() {
 
 export async function listProfiles(filters: ProfileFilters) {
   const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      params.set(key, value);
-    }
-  });
+  Object.entries(filters).forEach(
+    ([key, value]: [string, string | undefined]) => {
+      if (value !== undefined && value !== "") {
+        params.set(key, value);
+      }
+    },
+  );
 
   const query = params.toString();
-  return request<{ profiles: Profile[] }>(`/profiles${query ? `?${query}` : ""}`);
+  return request<{ profiles: Profile[] }>(
+    `/profiles${query ? `?${query}` : ""}`,
+  );
 }
 
 export async function getMyProfile() {
@@ -166,6 +174,7 @@ export async function importBiodataWithAi(file?: File | File[], text?: string) {
 
   return request<{
     aiUsed: boolean;
+    confidence: ExtractionConfidence;
     draft: ProfileDraft;
     extractedTextPreview?: string;
     sourceType: string;
@@ -187,9 +196,12 @@ export async function uploadProfilePhotos(profileId: string, files: File[]) {
 
 export async function fetchProfilePdf(profileId: string) {
   const token = getStoredToken();
-  const response = await fetch(`${API_BASE_URL}/profiles/${profileId}/biodata.pdf`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/profiles/${profileId}/biodata.pdf`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    },
+  );
 
   if (!response.ok) {
     throw new Error((await parseMessage(response)) || "Could not generate PDF");
@@ -212,7 +224,11 @@ export async function adminListUsers() {
 
 export async function adminUpdateUser(
   userId: string,
-  payload: { canEditBio?: boolean; permissions?: Record<string, boolean> },
+  payload: {
+    role?: "user" | "admin";
+    canEditBio?: boolean;
+    permissions?: Record<string, boolean>;
+  },
 ) {
   return request<{ user: AdminUser }>(`/admin/users/${userId}`, {
     method: "PATCH",
@@ -224,38 +240,55 @@ export async function adminNotifyUser(
   userId: string,
   payload: { channels: string[]; title?: string; message?: string },
 ) {
-  return request<{ notifications: NotificationRecord[] }>(`/admin/users/${userId}/notify`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  return request<{ notifications: NotificationRecord[] }>(
+    `/admin/users/${userId}/notify`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
 }
 
 export async function adminListProfiles(filters: ProfileFilters = {}) {
   const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      params.set(key, value);
-    }
-  });
+  Object.entries(filters).forEach(
+    ([key, value]: [string, string | undefined]) => {
+      if (value !== undefined && value !== "") {
+        params.set(key, value);
+      }
+    },
+  );
   const query = params.toString();
-  return request<{ profiles: Profile[] }>(`/admin/profiles${query ? `?${query}` : ""}`);
+  return request<{ profiles: Profile[] }>(
+    `/admin/profiles${query ? `?${query}` : ""}`,
+  );
 }
 
-export async function adminSetProfileLock(profileId: string, isLocked: boolean, reason?: string) {
+export async function adminSetProfileLock(
+  profileId: string,
+  isLocked: boolean,
+  reason?: string,
+) {
   return request<{ profile: Profile }>(`/admin/profiles/${profileId}/lock`, {
     method: "PATCH",
     body: JSON.stringify({ isLocked, reason }),
   });
 }
 
-export async function adminSetProfileVerification(profileId: string, isVerified: boolean) {
+export async function adminSetProfileVerification(
+  profileId: string,
+  isVerified: boolean,
+) {
   return request<{ profile: Profile }>(`/admin/profiles/${profileId}/verify`, {
     method: "PATCH",
     body: JSON.stringify({ isVerified }),
   });
 }
 
-export async function adminBulkUploadProfiles(file?: File | File[], text?: string) {
+export async function adminBulkUploadProfiles(
+  file?: File | File[],
+  text?: string,
+) {
   const formData = new FormData();
   if (Array.isArray(file)) {
     file.forEach((item) => formData.append("source", item));
@@ -265,16 +298,21 @@ export async function adminBulkUploadProfiles(file?: File | File[], text?: strin
   if (text) {
     formData.append("text", text);
   }
-  return request<{ created: Profile[]; aiUsed?: boolean; sourceType?: string }>(
-    "/admin/profiles/bulk-upload",
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
+  return request<{
+    created: Profile[];
+    extractions?: ExtractionConfidence[];
+    aiUsed?: boolean;
+    sourceType?: string;
+  }>("/admin/profiles/bulk-upload", {
+    method: "POST",
+    body: formData,
+  });
 }
 
-export async function adminPreviewBulkProfiles(file?: File | File[], text?: string) {
+export async function adminPreviewBulkProfiles(
+  file?: File | File[],
+  text?: string,
+) {
   const formData = new FormData();
   if (Array.isArray(file)) {
     file.forEach((item) => formData.append("source", item));
@@ -284,13 +322,16 @@ export async function adminPreviewBulkProfiles(file?: File | File[], text?: stri
   if (text) {
     formData.append("text", text);
   }
-  return request<{ drafts: ProfileDraft[]; aiUsed?: boolean; sourceType?: string }>(
-    "/admin/profiles/bulk-preview",
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
+  return request<{
+    drafts: ProfileDraft[];
+    confidence?: ExtractionConfidence;
+    extractions?: ExtractionConfidence[];
+    aiUsed?: boolean;
+    sourceType?: string;
+  }>("/admin/profiles/bulk-preview", {
+    method: "POST",
+    body: formData,
+  });
 }
 
 export async function adminCreateReviewedProfiles(profiles: ProfileDraft[]) {

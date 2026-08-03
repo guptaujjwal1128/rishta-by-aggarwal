@@ -26,8 +26,7 @@ const Banner = () => {
         minHeight: { xs: theme.spacing(58), md: theme.spacing(68) },
         overflow: "hidden",
         borderRadius: { xs: theme.spacing(2), sm: 0 },
-        [theme.breakpoints.down("sm")]: {
-        },
+        [theme.breakpoints.down("sm")]: {},
       })}
     >
       {/* Layer 1: Base Clear Image */}

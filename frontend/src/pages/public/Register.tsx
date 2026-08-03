@@ -119,7 +119,13 @@ const Register = () => {
               </Typography>
             </Box>
             {error ? <Alert severity="error">{error}</Alert> : null}
-            <Stack component="form" gap={2} onSubmit={submit}>
+            <Stack
+              component="form"
+              gap={2}
+              onSubmit={(event) => {
+                void submit(event);
+              }}
+            >
               <TextField
                 required
                 label="Full name"

@@ -6,7 +6,6 @@ const { JWT_SECRET } = require("../config");
 const {
   createUser,
   findUserByEmailOrPhone,
-  findUserById,
   findUserByIdentifier,
   upsertSocialUser,
 } = require("../db/postgres");
@@ -16,16 +15,7 @@ const { resolveSocialIdentity } = require("../services/socialAuth");
 const router = express.Router();
 
 function issueToken(user) {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      phone: user.phone,
-      role: user.role || "user",
-    },
-    JWT_SECRET,
-    { expiresIn: "7d" },
-  );
+  return jwt.sign({}, JWT_SECRET, { expiresIn: "7d", subject: user.id });
 }
 
 function publicUser(user) {
@@ -35,17 +25,23 @@ function publicUser(user) {
     email: user.email,
     phone: user.phone,
     role: user.role || "user",
+    permissions: user.permissions || {},
+    canEditBio: user.canEditBio !== false,
     authProvider: user.authProvider || "password",
     createdAt: user.createdAt,
   };
 }
 
 function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+  return String(email || "")
+    .trim()
+    .toLowerCase();
 }
 
 function normalizePhone(phone) {
-  return String(phone || "").replace(/\s+/g, "").trim();
+  return String(phone || "")
+    .replace(/\s+/g, "")
+    .trim();
 }
 
 function requireBody(fields, body) {
@@ -62,7 +58,9 @@ router.post("/register", async (req, res, next) => {
     requireBody(["name", "email", "phone", "password"], req.body);
 
     if (String(req.body.password).length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
     const email = normalizeEmail(req.body.email);
@@ -70,7 +68,9 @@ router.post("/register", async (req, res, next) => {
     const passwordHash = await bcrypt.hash(String(req.body.password), 10);
     const exists = await findUserByEmailOrPhone(email, phone);
     if (exists) {
-      return res.status(409).json({ message: "A user with this email or phone already exists" });
+      return res
+        .status(409)
+        .json({ message: "A user with this email or phone already exists" });
     }
 
     const createdUser = await createUser({
@@ -94,15 +94,24 @@ router.post("/login", async (req, res, next) => {
     requireBody(["identifier", "password"], req.body);
 
     const identifier = String(req.body.identifier).trim().toLowerCase();
-    const user = await findUserByIdentifier(normalizePhone(identifier) || identifier);
+    const user = await findUserByIdentifier(
+      normalizePhone(identifier) || identifier,
+    );
 
     if (!user || !user.passwordHash) {
-      return res.status(401).json({ message: "Invalid email, phone, or password" });
+      return res
+        .status(401)
+        .json({ message: "Invalid email, phone, or password" });
     }
 
-    const ok = await bcrypt.compare(String(req.body.password), user.passwordHash);
+    const ok = await bcrypt.compare(
+      String(req.body.password),
+      user.passwordHash,
+    );
     if (!ok) {
-      return res.status(401).json({ message: "Invalid email, phone, or password" });
+      return res
+        .status(401)
+        .json({ message: "Invalid email, phone, or password" });
     }
 
     res.json({
@@ -118,12 +127,16 @@ router.post("/social", async (req, res, next) => {
   try {
     const provider = String(req.body.provider || "").toLowerCase();
     if (!["google", "facebook"].includes(provider)) {
-      return res.status(400).json({ message: "Supported providers: google, facebook" });
+      return res
+        .status(400)
+        .json({ message: "Supported providers: google, facebook" });
     }
 
     const identity = await resolveSocialIdentity(provider, req.body);
     if (!identity.email) {
-      return res.status(400).json({ message: "Social sign-in requires an email or provider token" });
+      return res.status(400).json({
+        message: "Social sign-in requires an email or provider token",
+      });
     }
 
     const email = normalizeEmail(identity.email);
@@ -146,11 +159,7 @@ router.post("/social", async (req, res, next) => {
 
 router.get("/me", authenticate(), async (req, res, next) => {
   try {
-    const user = await findUserById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json({ user: publicUser(user) });
+    res.json({ user: publicUser(req.user) });
   } catch (err) {
     next(err);
   }

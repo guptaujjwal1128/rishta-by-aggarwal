@@ -59,7 +59,10 @@ async function downloadRemotePhoto(photo, tempDir) {
       return photo;
     }
     const extension = path.extname(new URL(photo.url).pathname) || ".jpg";
-    const localPath = path.join(tempDir, `${photo.id || Date.now()}${extension}`);
+    const localPath = path.join(
+      tempDir,
+      `${photo.id || Date.now()}${extension}`,
+    );
     const buffer = Buffer.from(await response.arrayBuffer());
     await fsp.writeFile(localPath, buffer);
     return { ...photo, localPath };
@@ -125,9 +128,12 @@ function fieldHeight(doc, label, value, width) {
   const labelWidth = Math.min(120, width * 0.36);
   const valueWidth = width - labelWidth - 8;
   const text = valueOrDash(value);
-  const labelHeight = doc.font("Helvetica-Bold").fontSize(10).heightOfString(label, {
-    width: labelWidth,
-  });
+  const labelHeight = doc
+    .font("Helvetica-Bold")
+    .fontSize(10)
+    .heightOfString(label, {
+      width: labelWidth,
+    });
   const valueHeight = doc.font("Helvetica").fontSize(10).heightOfString(text, {
     width: valueWidth,
   });
@@ -202,7 +208,10 @@ function drawPhotoBox(doc, imagePath, x, y, width, height, fallbackText) {
 }
 
 function drawPhotoStrip(doc, profile, y) {
-  const photos = (profile.photos || []).map(photoPath).filter(Boolean).slice(0, 5);
+  const photos = (profile.photos || [])
+    .map(photoPath)
+    .filter(Boolean)
+    .slice(0, 5);
   if (!photos.length) {
     return y;
   }
@@ -248,7 +257,9 @@ function drawHeader(doc, profile) {
     .fontSize(11)
     .fillColor("#555555")
     .text(
-      [profile.profileType, profile.city, profile.state, profile.country].filter(Boolean).join(" | "),
+      [profile.profileType, profile.city, profile.state, profile.country]
+        .filter(Boolean)
+        .join(" | "),
       page.margin,
       140,
       { width: 340 },
@@ -270,7 +281,11 @@ function drawHeader(doc, profile) {
 async function createBiodataPdf(inputProfile, res) {
   const prepared = await preparePdfPhotos(inputProfile);
   const profile = prepared.profile;
-  const doc = new PDFDocument({ margin: page.margin, size: "A4", autoFirstPage: false });
+  const doc = new PDFDocument({
+    margin: page.margin,
+    size: "A4",
+    autoFirstPage: false,
+  });
   const fileName = `${profile.fullName || "profile"}-biodata.pdf`
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
@@ -287,37 +302,76 @@ async function createBiodataPdf(inputProfile, res) {
     {
       title: "Personal Details",
       rows: [
-        [["Date of Birth", profile.dateOfBirth], ["Time of Birth", profile.timeOfBirth]],
-        [["Place of Birth", profile.placeOfBirth], ["Height", profile.height]],
-        [["Complexion", profile.complexion], ["Marital Status", profile.maritalStatus]],
-        [["Caste", [profile.caste, profile.subCaste].filter(Boolean).join(" - ")], ["Gotra", profile.gotra]],
-        [["Manglik", profile.manglik], ["Mother Tongue", profile.motherTongue]],
-        [["Rashi", profile.rashi], ["Nakshatra", profile.nakshatra]],
+        [
+          ["Date of Birth", profile.dateOfBirth],
+          ["Time of Birth", profile.timeOfBirth],
+        ],
+        [
+          ["Place of Birth", profile.placeOfBirth],
+          ["Height", profile.height],
+        ],
+        [
+          ["Complexion", profile.complexion],
+          ["Marital Status", profile.maritalStatus],
+        ],
+        [
+          [
+            "Caste",
+            [profile.caste, profile.subCaste].filter(Boolean).join(" - "),
+          ],
+          ["Gotra", profile.gotra],
+        ],
+        [
+          ["Manglik", profile.manglik],
+          ["Mother Tongue", profile.motherTongue],
+        ],
+        [
+          ["Rashi", profile.rashi],
+          ["Nakshatra", profile.nakshatra],
+        ],
       ],
     },
     {
       title: "Education & Career",
       rows: [
-        [[ "Education", profile.education ]],
-        [[ "Occupation", profile.occupation ]],
-        [[ "Annual Income", formatIncome(profile.annualIncome) ], [ "Work Location", profile.workLocation ]],
+        [["Education", profile.education]],
+        [["Occupation", profile.occupation]],
+        [
+          ["Annual Income", formatIncome(profile.annualIncome)],
+          ["Work Location", profile.workLocation],
+        ],
       ],
     },
     {
       title: "Family Details",
       rows: [
-        [["Father", profile.fatherName], ["Occupation", profile.fatherOccupation]],
-        [["Mother", profile.motherName], ["Occupation", profile.motherOccupation]],
+        [
+          ["Father", profile.fatherName],
+          ["Occupation", profile.fatherOccupation],
+        ],
+        [
+          ["Mother", profile.motherName],
+          ["Occupation", profile.motherOccupation],
+        ],
         [["Siblings", profile.siblings]],
         [["Residence", profile.residence]],
-        [["Family Type", profile.familyType], ["Family Values", profile.familyValues]],
+        [
+          ["Family Type", profile.familyType],
+          ["Family Values", profile.familyValues],
+        ],
       ],
     },
     {
       title: "Lifestyle & Preferences",
       rows: [
-        [["Diet", profile.diet], ["Smoking", profile.smoking]],
-        [["Drinking", profile.drinking], ["Hobbies", profile.hobbies]],
+        [
+          ["Diet", profile.diet],
+          ["Smoking", profile.smoking],
+        ],
+        [
+          ["Drinking", profile.drinking],
+          ["Hobbies", profile.hobbies],
+        ],
         [["About", profile.about]],
         [["Partner Preference", profile.partnerPreferences]],
       ],
@@ -332,7 +386,11 @@ async function createBiodataPdf(inputProfile, res) {
 
   y = drawPhotoStrip(doc, profile, y + 10);
   y = ensurePage(doc, y + 16, 46);
-  doc.moveTo(page.margin, y).lineTo(page.margin + page.contentWidth, y).strokeColor("#e8b58e").stroke();
+  doc
+    .moveTo(page.margin, y)
+    .lineTo(page.margin + page.contentWidth, y)
+    .strokeColor("#e8b58e")
+    .stroke();
   doc
     .font("Helvetica")
     .fontSize(9)

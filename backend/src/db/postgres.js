@@ -1,14 +1,8 @@
 const { randomUUID } = require("crypto");
-const bcrypt = require("bcryptjs");
 const { Pool } = require("pg");
 
-const {
-  ADMIN_EMAIL,
-  ADMIN_NAME,
-  ADMIN_PASSWORD,
-  ADMIN_PHONE,
-  DATABASE_URL,
-} = require("../config");
+const { DATABASE_URL } = require("../config");
+const { Permissions } = require("../auth/permissions");
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -95,6 +89,14 @@ function toPublicUser(row) {
     permissions: row.permissions || {},
     createdAt: row.created_at,
   };
+}
+
+function withoutPasswordHash(user) {
+  if (!user) {
+    return null;
+  }
+  const { passwordHash: _passwordHash, ...safeUser } = user;
+  return safeUser;
 }
 
 function toProfile(row) {
@@ -245,8 +247,10 @@ async function seedDemoProfiles() {
       smoking: "No",
       drinking: "No",
       hobbies: "Classical music, travel, reading",
-      about: "Warm, ambitious, family-oriented and looking for a compatible partner.",
-      partnerPreferences: "Well-educated, respectful family, based in Delhi NCR or open to relocation.",
+      about:
+        "Warm, ambitious, family-oriented and looking for a compatible partner.",
+      partnerPreferences:
+        "Well-educated, respectful family, based in Delhi NCR or open to relocation.",
       contactEmail: "demo.bride@rishta.local",
       contactPhone: "+91 90000 00001",
     },
@@ -286,8 +290,10 @@ async function seedDemoProfiles() {
       smoking: "No",
       drinking: "Occasionally",
       hobbies: "Running, investing, cooking",
-      about: "Grounded, professionally settled and values family relationships.",
-      partnerPreferences: "Educated, kind, career-positive and family-oriented.",
+      about:
+        "Grounded, professionally settled and values family relationships.",
+      partnerPreferences:
+        "Educated, kind, career-positive and family-oriented.",
       contactEmail: "demo.groom@rishta.local",
       contactPhone: "+91 90000 00002",
     },
@@ -296,7 +302,10 @@ async function seedDemoProfiles() {
   for (const profile of demoProfiles) {
     const fields = Object.keys(profileColumns);
     const columns = ["id", ...fields.map((field) => profileColumns[field])];
-    const values = [profile.id, ...fields.map((field) => profileDbValue(field, profile[field]))];
+    const values = [
+      profile.id,
+      ...fields.map((field) => profileDbValue(field, profile[field])),
+    ];
     const placeholders = values.map((_, index) => `$${index + 1}`);
 
     await query(
@@ -327,8 +336,41 @@ async function initDb() {
     );
   `);
 
-  await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS can_edit_bio boolean NOT NULL DEFAULT true");
-  await query("ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions jsonb NOT NULL DEFAULT '{}'");
+  await query(
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user'",
+  );
+  await query(
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS can_edit_bio boolean NOT NULL DEFAULT true",
+  );
+  await query(
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions jsonb NOT NULL DEFAULT '{}'",
+  );
+  await query("UPDATE users SET role = 'user' WHERE role IS NULL");
+  await query("UPDATE users SET permissions = '{}' WHERE permissions IS NULL");
+  await query("ALTER TABLE users ALTER COLUMN role SET DEFAULT 'user'");
+  await query("ALTER TABLE users ALTER COLUMN role SET NOT NULL");
+  await query(
+    "ALTER TABLE users ALTER COLUMN permissions SET DEFAULT '{}'::jsonb",
+  );
+  await query("ALTER TABLE users ALTER COLUMN permissions SET NOT NULL");
+  await query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'users_role_check') THEN
+        ALTER TABLE users
+        ADD CONSTRAINT users_role_check CHECK (role IN ('user', 'admin')) NOT VALID;
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'users_permissions_object_check') THEN
+        ALTER TABLE users
+        ADD CONSTRAINT users_permissions_object_check
+        CHECK (jsonb_typeof(permissions) = 'object') NOT VALID;
+      END IF;
+    END $$;
+  `);
+  await query("ALTER TABLE users VALIDATE CONSTRAINT users_role_check");
+  await query(
+    "ALTER TABLE users VALIDATE CONSTRAINT users_permissions_object_check",
+  );
 
   await query(`
     CREATE TABLE IF NOT EXISTS profiles (
@@ -385,11 +427,21 @@ async function initDb() {
     );
   `);
 
-  await query("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_locked boolean NOT NULL DEFAULT false");
-  await query("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS locked_at timestamptz");
-  await query("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS locked_reason text");
-  await query("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false");
-  await query("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verified_at timestamptz");
+  await query(
+    "ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_locked boolean NOT NULL DEFAULT false",
+  );
+  await query(
+    "ALTER TABLE profiles ADD COLUMN IF NOT EXISTS locked_at timestamptz",
+  );
+  await query(
+    "ALTER TABLE profiles ADD COLUMN IF NOT EXISTS locked_reason text",
+  );
+  await query(
+    "ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false",
+  );
+  await query(
+    "ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verified_at timestamptz",
+  );
 
   await query(`
     CREATE TABLE IF NOT EXISTS notifications (
@@ -405,57 +457,48 @@ async function initDb() {
   `);
 
   await query(`
+    CREATE TABLE IF NOT EXISTS admin_audit_log (
+      id uuid PRIMARY KEY,
+      actor_user_id uuid NOT NULL REFERENCES users(id),
+      action text NOT NULL,
+      target_type text NOT NULL,
+      target_id text,
+      before_state jsonb,
+      after_state jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+  `);
+
+  await query(`
     CREATE UNIQUE INDEX IF NOT EXISTS profiles_user_id_unique
     ON profiles(user_id)
     WHERE user_id IS NOT NULL;
   `);
 
   await seedDemoProfiles();
-  await seedAdminUser();
 }
 
-async function seedAdminUser() {
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-    return;
-  }
-
-  const email = ADMIN_EMAIL.trim().toLowerCase();
-  const existing = await findUserByIdentifier(email);
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-
-  if (existing) {
-    await query(
-      `
-        UPDATE users
-        SET role = 'admin',
-            name = COALESCE(NULLIF($2, ''), name),
-            phone = COALESCE(NULLIF($3, ''), phone),
-            password_hash = $4,
-            can_edit_bio = true
-        WHERE id = $1
-      `,
-      [existing.id, ADMIN_NAME, ADMIN_PHONE, passwordHash],
-    );
-    return;
-  }
-
-  await query(
-    `
-      INSERT INTO users (id, name, email, phone, password_hash, role, auth_provider, can_edit_bio)
-      VALUES ($1, $2, $3, $4, $5, 'admin', 'password', true)
-    `,
-    [randomUUID(), ADMIN_NAME, email, ADMIN_PHONE || null, passwordHash],
-  );
-}
-
-async function createUser({ name, email, phone, passwordHash, authProvider = "password" }) {
+async function createUser({
+  name,
+  email,
+  phone,
+  passwordHash,
+  authProvider = "password",
+}) {
   const result = await query(
     `
       INSERT INTO users (id, name, email, phone, password_hash, auth_provider)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `,
-    [randomUUID(), name, email, phone || null, passwordHash || null, authProvider],
+    [
+      randomUUID(),
+      name,
+      email,
+      phone || null,
+      passwordHash || null,
+      authProvider,
+    ],
   );
   return toPublicUser(result.rows[0]);
 }
@@ -502,7 +545,9 @@ async function upsertSocialUser({ provider, name, email, phone }) {
     return toPublicUser(result.rows[0]);
   }
 
-  const providers = Array.from(new Set([...(existing.socialProviders || []), provider]));
+  const providers = Array.from(
+    new Set([...(existing.socialProviders || []), provider]),
+  );
   const result = await query(
     `
       UPDATE users
@@ -520,7 +565,9 @@ async function upsertSocialUser({ provider, name, email, phone }) {
 }
 
 async function getProfileByUserId(userId) {
-  const result = await query("SELECT * FROM profiles WHERE user_id = $1", [userId]);
+  const result = await query("SELECT * FROM profiles WHERE user_id = $1", [
+    userId,
+  ]);
   return toProfile(result.rows[0]);
 }
 
@@ -704,23 +751,33 @@ async function listProfiles(filters = {}) {
   }
 
   if (filters.caste) {
-    clauses.push(`lower(coalesce(caste, '')) LIKE ${addParam(`%${String(filters.caste).toLowerCase()}%`)}`);
+    clauses.push(
+      `lower(coalesce(caste, '')) LIKE ${addParam(`%${String(filters.caste).toLowerCase()}%`)}`,
+    );
   }
 
   if (filters.minAge) {
-    clauses.push(`date_of_birth IS NOT NULL AND date_part('year', age(date_of_birth)) >= ${addParam(Number(filters.minAge))}`);
+    clauses.push(
+      `date_of_birth IS NOT NULL AND date_part('year', age(date_of_birth)) >= ${addParam(Number(filters.minAge))}`,
+    );
   }
 
   if (filters.maxAge) {
-    clauses.push(`date_of_birth IS NOT NULL AND date_part('year', age(date_of_birth)) <= ${addParam(Number(filters.maxAge))}`);
+    clauses.push(
+      `date_of_birth IS NOT NULL AND date_part('year', age(date_of_birth)) <= ${addParam(Number(filters.maxAge))}`,
+    );
   }
 
   if (filters.minIncome) {
-    clauses.push(`annual_income IS NOT NULL AND annual_income >= ${addParam(Number(filters.minIncome))}`);
+    clauses.push(
+      `annual_income IS NOT NULL AND annual_income >= ${addParam(Number(filters.minIncome))}`,
+    );
   }
 
   if (filters.maxIncome) {
-    clauses.push(`annual_income IS NOT NULL AND annual_income <= ${addParam(Number(filters.maxIncome))}`);
+    clauses.push(
+      `annual_income IS NOT NULL AND annual_income <= ${addParam(Number(filters.maxIncome))}`,
+    );
   }
 
   if (!filters.includeUnverified) {
@@ -757,7 +814,7 @@ async function listUsersWithProfiles() {
   return result.rows.map((row) => {
     const profile = toProfile(row.profile_json);
     return {
-      ...toPublicUser(row),
+      ...withoutPasswordHash(toPublicUser(row)),
       profileId: row.profile_id,
       profileName: row.profile_full_name,
       profileLocked: Boolean(row.profile_is_locked),
@@ -768,24 +825,88 @@ async function listUsersWithProfiles() {
 }
 
 async function updateUserAdminSettings(userId, payload) {
+  const current = await findUserById(userId);
+  if (!current) {
+    return null;
+  }
+
+  const nextRole = payload.role || current.role;
+  const nextPermissions =
+    nextRole === "admin" ? payload.permissions || current.permissions : {};
+  const updatesPermissions =
+    payload.permissions !== undefined || payload.role === "user";
+  const removesAccessManager =
+    current.role === "admin" &&
+    current.permissions?.[Permissions.USERS_MANAGE_ACCESS] === true &&
+    (nextRole !== "admin" ||
+      nextPermissions[Permissions.USERS_MANAGE_ACCESS] !== true);
+
+  if (removesAccessManager) {
+    const countResult = await query(
+      `SELECT count(*)::int AS count
+       FROM users
+       WHERE role = 'admin' AND permissions ->> $1 = 'true'`,
+      [Permissions.USERS_MANAGE_ACCESS],
+    );
+    if (countResult.rows[0].count <= 1) {
+      const err = new Error("The last access-managing admin cannot be removed");
+      err.status = 409;
+      throw err;
+    }
+  }
+
   const result = await query(
     `
       UPDATE users
       SET can_edit_bio = COALESCE($2, can_edit_bio),
-          permissions = COALESCE($3::jsonb, permissions)
+          permissions = COALESCE($3::jsonb, permissions),
+          role = COALESCE($4, role)
       WHERE id = $1
       RETURNING *
     `,
     [
       userId,
       typeof payload.canEditBio === "boolean" ? payload.canEditBio : null,
-      payload.permissions ? JSON.stringify(payload.permissions) : null,
+      updatesPermissions ? JSON.stringify(nextPermissions) : null,
+      payload.role || null,
     ],
   );
-  return toPublicUser(result.rows[0]);
+  return withoutPasswordHash(toPublicUser(result.rows[0]));
 }
 
-async function createNotification({ userId, channel, title, message, status = "queued" }) {
+async function createAdminAuditLog({
+  actorUserId,
+  action,
+  targetType,
+  targetId,
+  beforeState,
+  afterState,
+}) {
+  await query(
+    `
+      INSERT INTO admin_audit_log
+        (id, actor_user_id, action, target_type, target_id, before_state, after_state)
+      VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb)
+    `,
+    [
+      randomUUID(),
+      actorUserId,
+      action,
+      targetType,
+      targetId || null,
+      beforeState ? JSON.stringify(beforeState) : null,
+      afterState ? JSON.stringify(afterState) : null,
+    ],
+  );
+}
+
+async function createNotification({
+  userId,
+  channel,
+  title,
+  message,
+  status = "queued",
+}) {
   const result = await query(
     `
       INSERT INTO notifications (id, user_id, channel, title, message, status)
@@ -828,6 +949,7 @@ module.exports = {
   addProfilePhotos,
   adminStats,
   calculateProfileCompletion,
+  createAdminAuditLog,
   createNotification,
   createStandaloneProfile,
   createUser,

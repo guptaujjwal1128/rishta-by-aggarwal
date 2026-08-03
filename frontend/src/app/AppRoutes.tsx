@@ -22,8 +22,10 @@ import Settings from "../pages/user/Settings";
 
 import RequireAuth from "../components/molecule/auth/RequireAuth";
 import RequireRole from "../components/molecule/auth/RequireRole";
+import RequirePermission from "../components/molecule/auth/RequirePermission";
 import MobileBottomNav from "../components/molecule/layout/mobile-bottom-nav/MobileBottomNav";
 import { AppRoutes as AppRoutesEnum } from "../constants/routes";
+import { Permissions } from "../constants/permissions";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -54,12 +56,45 @@ const AppRoutes = () => {
             path={AppRoutesEnum.ADMIN_ROOT}
             element={<RequireRole role="admin" />}
           >
-            <Route index element={<AdminDashboard />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="users/:id" element={<UserDetails />} />
-            <Route path="queries" element={<Queries />} />
-            <Route path="settings" element={<AdminSettings />} />
+            <Route
+              element={
+                <RequirePermission
+                  permissions={[
+                    Permissions.ADMIN_DASHBOARD_VIEW,
+                    Permissions.PROFILES_READ,
+                  ]}
+                />
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+            </Route>
+            <Route
+              element={
+                <RequirePermission permissions={[Permissions.USERS_READ]} />
+              }
+            >
+              <Route path="users" element={<Users />} />
+              <Route path="users/:id" element={<UserDetails />} />
+            </Route>
+            <Route
+              element={
+                <RequirePermission
+                  permissions={[Permissions.NOTIFICATIONS_SEND]}
+                />
+              }
+            >
+              <Route path="queries" element={<Queries />} />
+            </Route>
+            <Route
+              element={
+                <RequirePermission
+                  permissions={[Permissions.ADMIN_SETTINGS_READ]}
+                />
+              }
+            >
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
           </Route>
 
           {/** User Routes */}

@@ -1,6 +1,11 @@
 // npm
 import { BrowserRouter } from "react-router";
-import { createTheme, CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
+import {
+  createTheme,
+  CssBaseline,
+  GlobalStyles,
+  ThemeProvider,
+} from "@mui/material";
 
 // Local
 import { THEME_OPTIONS } from "../constants/theme";

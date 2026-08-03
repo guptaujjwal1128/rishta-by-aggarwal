@@ -1,6 +1,13 @@
 // External
 import { useState } from "react";
-import { Box, Button, Drawer, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   PrimaryButton,
@@ -10,10 +17,14 @@ import { NavLink } from "react-router";
 
 // Internal
 import useNavigation from "../../../../hooks/useNavigation";
-import { AppRoutes, type AppRoutes as AppRoutePath } from "../../../../constants/routes";
+import {
+  AppRoutes,
+  type AppRoutes as AppRoutePath,
+} from "../../../../constants/routes";
 import { TEXT } from "../../../../constants/TEXT";
 import { ASSETS } from "../../../../constants/ASSETS";
 import { useAuth } from "../../../../context/AuthContext";
+import { hasPermission, Permissions } from "../../../../constants/permissions";
 const { header } = TEXT;
 
 const Header = () => {
@@ -32,11 +43,31 @@ const Header = () => {
     void goTo(AppRoutes.HOME);
   };
 
-  const navItems: Array<{ label: string; path: AppRoutePath; primary?: boolean }> = user
+  const adminPath =
+    hasPermission(user, Permissions.ADMIN_DASHBOARD_VIEW) &&
+    hasPermission(user, Permissions.PROFILES_READ)
+      ? AppRoutes.ADMIN_DASHBOARD
+      : hasPermission(user, Permissions.USERS_READ)
+        ? AppRoutes.ADMIN_USERS
+        : hasPermission(user, Permissions.NOTIFICATIONS_SEND)
+          ? AppRoutes.ADMIN_QUERIES
+          : hasPermission(user, Permissions.ADMIN_SETTINGS_READ)
+            ? AppRoutes.ADMIN_SETTINGS
+            : null;
+
+  const navItems: {
+    label: string;
+    path: AppRoutePath;
+    primary?: boolean;
+  }[] = user
     ? [
-        ...(user.role !== "admin" ? [{ label: "My Biodata", path: AppRoutes.PROFILE }] : []),
+        ...(user.role !== "admin"
+          ? [{ label: "My Biodata", path: AppRoutes.PROFILE }]
+          : []),
         { label: "Dashboard", path: AppRoutes.DASHBOARD, primary: true },
-        ...(user.role === "admin" ? [{ label: "Admin", path: AppRoutes.ADMIN_DASHBOARD }] : []),
+        ...(user.role === "admin" && adminPath
+          ? [{ label: "Admin", path: adminPath }]
+          : []),
       ]
     : [
         { label: header.login, path: AppRoutes.LOGIN },
@@ -71,7 +102,10 @@ const Header = () => {
             variant="h5"
             component="h1"
             color="primary"
-            sx={{ fontSize: { xs: "1rem", sm: "1.375rem" }, whiteSpace: "nowrap" }}
+            sx={{
+              fontSize: { xs: "1rem", sm: "1.375rem" },
+              whiteSpace: "nowrap",
+            }}
           >
             {header.brandName}
           </Typography>

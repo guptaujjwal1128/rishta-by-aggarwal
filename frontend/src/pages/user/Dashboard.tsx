@@ -98,8 +98,6 @@ const Dashboard = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    setError("");
     void listProfiles(appliedFilters)
       .then(({ profiles: nextProfiles }) => {
         setProfiles(nextProfiles);
@@ -148,11 +146,15 @@ const Dashboard = () => {
   };
 
   const resetFilters = () => {
+    setLoading(true);
+    setError("");
     setDraftFilters(blankFilters);
     setAppliedFilters(blankFilters);
   };
 
   const removeAppliedFilter = (field: keyof ProfileFilters) => {
+    setLoading(true);
+    setError("");
     setDraftFilters((current) => ({ ...current, [field]: "" }));
     setAppliedFilters((current) => ({ ...current, [field]: "" }));
   };
@@ -282,6 +284,8 @@ const Dashboard = () => {
                 <PrimaryButton
                   startIcon={<SearchIcon />}
                   onClick={() => {
+                    setLoading(true);
+                    setError("");
                     setAppliedFilters(draftFilters);
                   }}
                 >
@@ -392,6 +396,8 @@ const Dashboard = () => {
                     <PrimaryButton
                       startIcon={<FilterAltIcon />}
                       onClick={() => {
+                        setLoading(true);
+                        setError("");
                         setAppliedFilters(draftFilters);
                         setFiltersOpen(false);
                       }}

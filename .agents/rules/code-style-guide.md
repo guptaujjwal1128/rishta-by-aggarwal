@@ -15,6 +15,8 @@ trigger: always_on
 
 4. Do precisely what has been told, don't make UI changes on your own.
 
+5. Don't commit my changes or any git write changes before asking.
+
 ### FRONTEND
 
 1. Follow project structure:

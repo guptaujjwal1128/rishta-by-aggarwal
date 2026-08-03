@@ -10,8 +10,14 @@
   "author": "Ujjwal Gupta",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "node index.js",
-    "start": "node index.js"
+    "debug": "node --inspect=127.0.0.1:9229 index.js",
+    "check": "npm run lint && npm run format:check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
@@ -26,5 +32,11 @@
     "pdf-parse": "^2.4.5",
     "pdfkit": "^0.19.1",
     "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^16.5.0",
+    "prettier": "^3.9.6"
   }
 }

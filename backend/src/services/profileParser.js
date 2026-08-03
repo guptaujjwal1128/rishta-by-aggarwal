@@ -178,7 +178,10 @@ function parseLineBasedText(text) {
 }
 
 function parseUploadedBiodata(file) {
-  const text = file.buffer.toString("utf8").replace(/^\uFEFF/, "").trim();
+  const text = file.buffer
+    .toString("utf8")
+    .replace(/^\uFEFF/, "")
+    .trim();
   const name = file.originalname.toLowerCase();
 
   if (!text) {

@@ -5,22 +5,27 @@ const { randomUUID } = require("crypto");
 const { Storage } = require("@google-cloud/storage");
 
 const {
-  GCS_PUBLIC_BASE_URL,
   GCS_UPLOAD_BUCKET,
+  GCS_UPLOAD_PREFIX,
+  GCP_PROJECT_ID,
   UPLOAD_DIR,
 } = require("../config");
 
-const storage = GCS_UPLOAD_BUCKET ? new Storage() : null;
+const storage = GCS_UPLOAD_BUCKET
+  ? new Storage({ projectId: GCP_PROJECT_ID || undefined })
+  : null;
 
 function safeExtension(originalName, fallback = ".jpg") {
   return path.extname(originalName || "").toLowerCase() || fallback;
 }
 
 function publicGcsUrl(objectName) {
-  const base =
-    GCS_PUBLIC_BASE_URL ||
-    `https://storage.googleapis.com/${GCS_UPLOAD_BUCKET}`;
-  return `${base.replace(/\/$/, "")}/${objectName}`;
+  return `https://storage.googleapis.com/${GCS_UPLOAD_BUCKET}/${objectName}`;
+}
+
+function gcsObjectName(filename) {
+  const prefix = GCS_UPLOAD_PREFIX.replace(/^\/+|\/+$/g, "");
+  return prefix ? `${prefix}/${filename}` : filename;
 }
 
 async function uploadPhoto(file) {
@@ -28,7 +33,7 @@ async function uploadPhoto(file) {
   const filename = `${randomUUID()}${ext}`;
 
   if (GCS_UPLOAD_BUCKET) {
-    const objectName = `photos/${filename}`;
+    const objectName = gcsObjectName(filename);
     const bucket = storage.bucket(GCS_UPLOAD_BUCKET);
     await bucket.file(objectName).save(file.buffer, {
       contentType: file.mimetype,

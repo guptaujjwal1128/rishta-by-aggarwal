@@ -65,7 +65,7 @@ const inputGridSx = {
   gap: 2,
 };
 
-const draftFields: Array<keyof ProfileDraft> = [
+const draftFields: (keyof ProfileDraft)[] = [
   "profileType",
   "fullName",
   "gender",
@@ -108,7 +108,7 @@ const draftFields: Array<keyof ProfileDraft> = [
   "contactPhone",
 ];
 
-const requiredFields: Array<keyof ProfileDraft> = [
+const requiredFields: (keyof ProfileDraft)[] = [
   "fullName",
   "profileType",
   "dateOfBirth",
@@ -277,7 +277,7 @@ const Profile = () => {
   );
 
   const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
     if (!files.length) {
       return;
@@ -288,7 +288,8 @@ const Profile = () => {
     setMessage("");
     setImporting(true);
     try {
-      const { draft, aiUsed, sourceType } = await importBiodataWithAi(files);
+      const { draft, aiUsed, confidence, sourceType } =
+        await importBiodataWithAi(files);
       setForm((current) => ({ ...current, ...draft }));
       if (imageFiles.length) {
         setPhotoFiles((current) => [...current, ...imageFiles].slice(0, 5));
@@ -298,7 +299,7 @@ const Profile = () => {
       setMessage(
         `${aiUsed ? "AI extracted" : "Imported"} ${files.length} file${
           files.length === 1 ? "" : "s"
-        } (${sourceType}). ${
+        } (${sourceType}, ${Math.round(confidence.score * 100)}% confidence${confidence.secondaryUsed ? ", secondary model used" : ""}). ${
           imageFiles.length
             ? `${imageFiles.length} image file${imageFiles.length === 1 ? "" : "s"} added as photos. `
             : ""
@@ -312,7 +313,7 @@ const Profile = () => {
   };
 
   const handlePhotos = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhotoFiles(Array.from(event.target.files || []).slice(0, 5));
+    setPhotoFiles(Array.from(event.target.files ?? []).slice(0, 5));
   };
 
   const saveProfile = async () => {
@@ -453,7 +454,7 @@ const Profile = () => {
       <Stack gap={1}>
         <Typography variant="body2Bold">Photos</Typography>
         <Stack direction="row" gap={1.5} flexWrap="wrap">
-          {(savedProfile?.photos || []).map((photo) => (
+          {(savedProfile?.photos ?? []).map((photo) => (
             <Box
               key={photo.id}
               component="img"
@@ -695,7 +696,9 @@ const Profile = () => {
                     multiple
                     type="file"
                     accept=".json,.txt,.csv,.pdf,.png,.jpg,.jpeg,.webp,application/json,text/plain,text/csv,application/pdf,image/png,image/jpeg,image/webp"
-                    onChange={handleImport}
+                    onChange={(event) => {
+                      void handleImport(event);
+                    }}
                   />
                 </Button>
               </Stack>

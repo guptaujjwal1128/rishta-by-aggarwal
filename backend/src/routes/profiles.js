@@ -105,7 +105,9 @@ router.put("/me", async (req, res, next) => {
     const user = await findUserById(req.user.id);
     const existing = await getProfileByUserId(req.user.id);
     if (user?.canEditBio === false || existing?.isLocked) {
-      return res.status(403).json({ message: "Your biodata is locked by admin" });
+      return res
+        .status(403)
+        .json({ message: "Your biodata is locked by admin" });
     }
 
     const payload = profilePayload(req.body);
@@ -117,17 +119,23 @@ router.put("/me", async (req, res, next) => {
   }
 });
 
-router.post("/import", importUpload.single("biodata"), async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "Upload a .json, .txt, or .csv biodata file" });
+router.post(
+  "/import",
+  importUpload.single("biodata"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ message: "Upload a .json, .txt, or .csv biodata file" });
+      }
+      const draft = parseUploadedBiodata(req.file);
+      res.json({ draft });
+    } catch (err) {
+      next(err);
     }
-    const draft = parseUploadedBiodata(req.file);
-    res.json({ draft });
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
 
 router.post(
   "/import-ai",
@@ -157,42 +165,50 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/:id/photos", photoUpload.array("photos", 5), async (req, res, next) => {
-  try {
-    const profile = await getProfileById(req.params.id);
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
-    if (!canEditProfile(req.user, profile)) {
-      return res.status(403).json({ message: "You can upload photos only for your own profile" });
-    }
-    if (req.user.role !== "admin" && profile.isLocked) {
-      return res.status(403).json({ message: "This biodata is locked by admin" });
-    }
+router.post(
+  "/:id/photos",
+  photoUpload.array("photos", 5),
+  async (req, res, next) => {
+    try {
+      const profile = await getProfileById(req.params.id);
+      if (!profile) {
+        return res.status(404).json({ message: "Profile not found" });
+      }
+      if (!canEditProfile(req.user, profile)) {
+        return res
+          .status(403)
+          .json({ message: "You can upload photos only for your own profile" });
+      }
+      if (req.user.role !== "admin" && profile.isLocked) {
+        return res
+          .status(403)
+          .json({ message: "This biodata is locked by admin" });
+      }
 
-    const uploaded = await Promise.all(
-      (req.files || []).map(async (file) => {
-        const stored = await uploadPhoto(file);
-        return {
-          id: randomUUID(),
-          filename: stored.filename,
-          originalName: file.originalname,
-          mimeType: file.mimetype,
-          url: stored.url,
-          storageProvider: stored.storageProvider,
-          storagePath: stored.storagePath,
-          uploadedAt: new Date().toISOString(),
-        };
-      }),
-    );
+      const uploaded = await Promise.all(
+        (req.files || []).map(async (file) => {
+          const stored = await uploadPhoto(file);
+          return {
+            id: randomUUID(),
+            filename: stored.filename,
+            originalName: file.originalname,
+            mimeType: file.mimetype,
+            url: stored.url,
+            storageProvider: stored.storageProvider,
+            storagePath: stored.storagePath,
+            uploadedAt: new Date().toISOString(),
+          };
+        }),
+      );
 
-    const savedProfile = await addProfilePhotos(req.params.id, uploaded);
+      const savedProfile = await addProfilePhotos(req.params.id, uploaded);
 
-    res.json({ profile: serializeProfile(savedProfile) });
-  } catch (err) {
-    next(err);
-  }
-});
+      res.json({ profile: serializeProfile(savedProfile) });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 router.get("/:id/biodata.pdf", async (req, res, next) => {
   try {

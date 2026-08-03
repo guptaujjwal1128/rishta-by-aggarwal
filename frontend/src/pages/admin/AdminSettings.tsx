@@ -21,9 +21,10 @@ import { Content, ContentContainer } from "../../styles/Layout.styled";
 const providerCards = [
   {
     icon: <SmartToyIcon color="primary" />,
-    title: "Gemini extraction",
-    status: "Configured from backend env",
-    helper: "Used for image, PDF, text, CSV, and JSON biodata extraction.",
+    title: "Vertex AI extraction",
+    status: "Confidence-routed",
+    helper:
+      "Uses a cost-efficient primary model and retries low-confidence extraction with the secondary model through the Cloud Run identity.",
   },
   {
     icon: <EmailIcon color="primary" />,
@@ -62,9 +63,8 @@ const AdminSettings = () => {
           </Box>
 
           <Alert severity="info">
-            Production secrets should stay in backend environment variables.
-            This page shows the operational configuration surface without
-            exposing keys.
+            Production secret values stay in GCP Secret Manager. Vertex AI uses
+            the backend Cloud Run service identity, so there is no AI API key.
           </Alert>
 
           <Box

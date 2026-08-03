@@ -28,5 +28,15 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      "@typescript-eslint/prefer-nullish-coalescing": [
+        "error",
+        { ignorePrimitives: { boolean: true, string: true } },
+      ],
+      "react-refresh/only-export-components": [
+        "error",
+        { allowConstantExport: true, allowExportNames: ["useAuth"] },
+      ],
+    },
   },
 ]);
