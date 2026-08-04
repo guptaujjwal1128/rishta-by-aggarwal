@@ -91,7 +91,7 @@ const AdminSettings = () => {
                 </Stack>
                 <FormControlLabel
                   control={<Switch defaultChecked />}
-                  label="New bulk-uploaded profiles start unverified"
+                  label="New bulk-imported profiles start unverified"
                 />
                 <FormControlLabel
                   control={<Switch defaultChecked />}

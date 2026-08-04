@@ -15,7 +15,6 @@ const { extractProfileWithAi } = require("../services/aiProfileExtractor");
 const {
   normalizeAnnualIncome,
   normalizeProfileInput,
-  parseUploadedBiodata,
 } = require("../services/profileParser");
 const { createBiodataPdf } = require("../services/pdfService");
 const { uploadPhoto } = require("../services/storageService");
@@ -67,10 +66,6 @@ function serializeProfile(profile) {
   };
 }
 
-function canEditProfile(user, profile) {
-  return user.role === "admin" || profile.userId === user.id;
-}
-
 function profilePayload(body) {
   const normalized = normalizeProfileInput(body);
 
@@ -120,25 +115,7 @@ router.put("/me", async (req, res, next) => {
 });
 
 router.post(
-  "/import",
-  importUpload.single("biodata"),
-  async (req, res, next) => {
-    try {
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ message: "Upload a .json, .txt, or .csv biodata file" });
-      }
-      const draft = parseUploadedBiodata(req.file);
-      res.json({ draft });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
-
-router.post(
-  "/import-ai",
+  "/extract",
   importUpload.array("source", 10),
   async (req, res, next) => {
     try {
@@ -153,33 +130,16 @@ router.post(
   },
 );
 
-router.get("/:id", async (req, res, next) => {
-  try {
-    const profile = await getProfileById(req.params.id);
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
-    res.json({ profile: serializeProfile(profile) });
-  } catch (err) {
-    next(err);
-  }
-});
-
 router.post(
-  "/:id/photos",
+  "/me/photos",
   photoUpload.array("photos", 5),
   async (req, res, next) => {
     try {
-      const profile = await getProfileById(req.params.id);
+      const profile = await getProfileByUserId(req.user.id);
       if (!profile) {
         return res.status(404).json({ message: "Profile not found" });
       }
-      if (!canEditProfile(req.user, profile)) {
-        return res
-          .status(403)
-          .json({ message: "You can upload photos only for your own profile" });
-      }
-      if (req.user.role !== "admin" && profile.isLocked) {
+      if (profile.isLocked) {
         return res
           .status(403)
           .json({ message: "This biodata is locked by admin" });
@@ -201,7 +161,7 @@ router.post(
         }),
       );
 
-      const savedProfile = await addProfilePhotos(req.params.id, uploaded);
+      const savedProfile = await addProfilePhotos(profile.id, uploaded);
 
       res.json({ profile: serializeProfile(savedProfile) });
     } catch (err) {

@@ -18,6 +18,14 @@ import {
   socialLogin as socialLoginRequest,
 } from "../services/api";
 import type { User } from "../types/domain";
+import { useAppDispatch, useAppSelector } from "../store";
+import { api } from "../store/api";
+import {
+  authCleared,
+  authFinished,
+  authStarted,
+  authSucceeded,
+} from "../store/authSlice";
 
 interface AuthContextValue {
   user: User | null;
@@ -42,9 +50,9 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const dispatch = useAppDispatch();
+  const { user, loading } = useAppSelector((state) => state.auth);
   const [initialToken] = useState(getStoredToken);
-  const [loading, setLoading] = useState(Boolean(initialToken));
 
   useEffect(() => {
     if (!initialToken) {
@@ -53,27 +61,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     void getMe()
       .then(({ user: currentUser }) => {
-        setUser(currentUser);
+        dispatch(authSucceeded(currentUser));
       })
       .catch(() => {
         clearStoredToken();
-      })
-      .finally(() => {
-        setLoading(false);
+        dispatch(api.util.resetApiState());
+        dispatch(authCleared());
       });
-  }, [initialToken]);
+  }, [dispatch, initialToken]);
 
-  const completeAuth = useCallback((token: string, currentUser: User) => {
-    setStoredToken(token);
-    setUser(currentUser);
-  }, []);
+  const completeAuth = useCallback(
+    (token: string, currentUser: User) => {
+      setStoredToken(token);
+      dispatch(api.util.resetApiState());
+      dispatch(authSucceeded(currentUser));
+    },
+    [dispatch],
+  );
 
   const login = useCallback(
     async (payload: { identifier: string; password: string }) => {
-      const response = await loginRequest(payload);
-      completeAuth(response.token, response.user);
+      dispatch(authStarted());
+      try {
+        const response = await loginRequest(payload);
+        completeAuth(response.token, response.user);
+      } catch (error) {
+        dispatch(authFinished());
+        throw error;
+      }
     },
-    [completeAuth],
+    [completeAuth, dispatch],
   );
 
   const register = useCallback(
@@ -83,10 +100,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       phone: string;
       password: string;
     }) => {
-      const response = await registerRequest(payload);
-      completeAuth(response.token, response.user);
+      dispatch(authStarted());
+      try {
+        const response = await registerRequest(payload);
+        completeAuth(response.token, response.user);
+      } catch (error) {
+        dispatch(authFinished());
+        throw error;
+      }
     },
-    [completeAuth],
+    [completeAuth, dispatch],
   );
 
   const socialLogin = useCallback(
@@ -97,16 +120,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       phone?: string;
       credential?: string;
     }) => {
-      const response = await socialLoginRequest(payload);
-      completeAuth(response.token, response.user);
+      dispatch(authStarted());
+      try {
+        const response = await socialLoginRequest(payload);
+        completeAuth(response.token, response.user);
+      } catch (error) {
+        dispatch(authFinished());
+        throw error;
+      }
     },
-    [completeAuth],
+    [completeAuth, dispatch],
   );
 
   const logout = useCallback(() => {
     clearStoredToken();
-    setUser(null);
-  }, []);
+    dispatch(api.util.resetApiState());
+    dispatch(authCleared());
+  }, [dispatch]);
 
   const value = useMemo(
     () => ({

@@ -8,7 +8,6 @@ export const Permissions = {
   PROFILES_IMPORT: "profiles.import",
   PROFILES_LOCK: "profiles.lock",
   PROFILES_READ: "profiles.read",
-  PROFILES_UPDATE: "profiles.update",
   PROFILES_VERIFY: "profiles.verify",
   USERS_MANAGE_ACCESS: "users.manage_access",
   USERS_READ: "users.read",

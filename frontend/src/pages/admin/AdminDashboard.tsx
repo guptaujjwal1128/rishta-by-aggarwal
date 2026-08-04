@@ -24,16 +24,15 @@ import Header from "../../components/molecule/layout/header/Header";
 import { hasPermission, Permissions } from "../../constants/permissions";
 import { useAuth } from "../../context/AuthContext";
 import {
-  adminCreateReviewedProfiles,
-  adminListProfiles,
-  adminPreviewBulkProfiles,
-  adminSetProfileLock,
-  adminSetProfileVerification,
-  adminStats,
-} from "../../services/api";
+  apiErrorMessage,
+  useAdminProfilesQuery,
+  useAdminStatsQuery,
+  useCreateReviewedProfilesMutation,
+  useModerateProfileMutation,
+  usePreviewBulkProfilesMutation,
+} from "../../store/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type {
-  AdminStats,
   ExtractionConfidence,
   Profile,
   ProfileDraft,
@@ -64,13 +63,20 @@ interface ReviewProfile {
   confidence?: ExtractionConfidence;
 }
 
+const EMPTY_PROFILES: Profile[] = [];
+
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const statsQuery = useAdminStatsQuery();
+  const profilesQuery = useAdminProfilesQuery();
+  const stats = statsQuery.data;
+  const profiles = profilesQuery.data ?? EMPTY_PROFILES;
+  const [previewBulkProfiles] = usePreviewBulkProfilesMutation();
+  const [createReviewedProfiles] = useCreateReviewedProfilesMutation();
+  const [moderateProfile] = useModerateProfileMutation();
   const canImport = hasPermission(user, Permissions.PROFILES_IMPORT);
   const canLock = hasPermission(user, Permissions.PROFILES_LOCK);
   const canVerify = hasPermission(user, Permissions.PROFILES_VERIFY);
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>([]);
   const [bulkText, setBulkText] = useState("");
   const [reviewProfiles, setReviewProfiles] = useState<ReviewProfile[]>([]);
@@ -79,23 +85,14 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
 
-  const load = async () => {
-    const [{ stats: nextStats }, { profiles: nextProfiles }] =
-      await Promise.all([adminStats(), adminListProfiles()]);
-    setStats(nextStats);
-    setProfiles(nextProfiles);
-    setSelectedProfileIds((current) =>
-      current.filter((id) => nextProfiles.some((profile) => profile.id === id)),
-    );
-  };
-
   useEffect(() => {
-    void load().catch((err) => {
-      setError(
-        err instanceof Error ? err.message : "Could not load admin dashboard",
+    setSelectedProfileIds((current) => {
+      const next = current.filter((id) =>
+        profiles.some((profile) => profile.id === id),
       );
+      return next.length === current.length ? current : next;
     });
-  }, []);
+  }, [profiles]);
 
   const handleBulkFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -107,8 +104,9 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { drafts, extractions, sourceType } =
-        await adminPreviewBulkProfiles(files);
+      const { drafts, extractions, sourceType } = await previewBulkProfiles([
+        files,
+      ]).unwrap();
       setReviewProfiles(
         drafts.map((profile, index) => ({
           clientId: crypto.randomUUID(),
@@ -136,8 +134,10 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { drafts, extractions, sourceType } =
-        await adminPreviewBulkProfiles(undefined, bulkText);
+      const { drafts, extractions, sourceType } = await previewBulkProfiles([
+        undefined,
+        bulkText,
+      ]).unwrap();
       setBulkText("");
       setReviewProfiles(
         drafts.map((profile, index) => ({
@@ -190,14 +190,13 @@ const AdminDashboard = () => {
     setError("");
     setMessage("");
     try {
-      const { created } = await adminCreateReviewedProfiles(
+      const created = await createReviewedProfiles(
         reviewProfiles.map(({ profile }) => profile),
-      );
+      ).unwrap();
       setReviewProfiles([]);
       setMessage(
         `Saved ${created.length} reviewed profile${created.length === 1 ? "" : "s"} as unverified.`,
       );
-      await load();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not save reviewed profiles",
@@ -213,12 +212,13 @@ const AdminDashboard = () => {
     }
     setError("");
     try {
-      await adminSetProfileLock(
+      await moderateProfile([
         profile.id,
-        !profile.isLocked,
-        "Locked from admin dashboard",
-      );
-      await load();
+        {
+          isLocked: !profile.isLocked,
+          lockedReason: "Locked from admin dashboard",
+        },
+      ]).unwrap();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not update profile lock",
@@ -267,11 +267,13 @@ const AdminDashboard = () => {
     try {
       await Promise.all(
         selectedProfileIds.map((profileId) =>
-          adminSetProfileLock(
+          moderateProfile([
             profileId,
-            isLocked,
-            isLocked ? "Bulk locked from admin dashboard" : "",
-          ),
+            {
+              isLocked,
+              lockedReason: isLocked ? "Bulk locked from admin dashboard" : "",
+            },
+          ]).unwrap(),
         ),
       );
       setMessage(
@@ -280,7 +282,6 @@ const AdminDashboard = () => {
         }.`,
       );
       setSelectedProfileIds([]);
-      await load();
     } catch (err) {
       setError(
         err instanceof Error
@@ -298,8 +299,7 @@ const AdminDashboard = () => {
     }
     setError("");
     try {
-      await adminSetProfileVerification(profile.id, isVerified);
-      await load();
+      await moderateProfile([profile.id, { isVerified }]).unwrap();
     } catch (err) {
       setError(
         err instanceof Error
@@ -319,7 +319,7 @@ const AdminDashboard = () => {
     try {
       await Promise.all(
         selectedProfileIds.map((profileId) =>
-          adminSetProfileVerification(profileId, isVerified),
+          moderateProfile([profileId, { isVerified }]).unwrap(),
         ),
       );
       setMessage(
@@ -328,7 +328,6 @@ const AdminDashboard = () => {
         }.`,
       );
       setSelectedProfileIds([]);
-      await load();
     } catch (err) {
       setError(
         err instanceof Error
@@ -358,7 +357,15 @@ const AdminDashboard = () => {
             </Typography>
           </Box>
 
-          {error ? <Alert severity="error">{error}</Alert> : null}
+          {error || statsQuery.error || profilesQuery.error ? (
+            <Alert severity="error">
+              {error ||
+                apiErrorMessage(
+                  statsQuery.error ?? profilesQuery.error,
+                  "Could not load admin dashboard",
+                )}
+            </Alert>
+          ) : null}
           {message ? <Alert severity="success">{message}</Alert> : null}
 
           <Box

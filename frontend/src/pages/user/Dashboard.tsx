@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Avatar,
@@ -36,7 +36,8 @@ import {
   SecondaryButton,
 } from "../../components/atom/button/Button";
 import Header from "../../components/molecule/layout/header/Header";
-import { assetUrl, fetchProfilePdf, listProfiles } from "../../services/api";
+import { assetUrl, fetchProfilePdf } from "../../services/api";
+import { apiErrorMessage, useProfilesQuery } from "../../store/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type { Profile, ProfileFilters } from "../../types/domain";
 
@@ -90,27 +91,18 @@ const Dashboard = () => {
     useState<ProfileFilters>(blankFilters);
   const [appliedFilters, setAppliedFilters] =
     useState<ProfileFilters>(blankFilters);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [viewMode, setViewMode] = useState<"gallery" | "list">("gallery");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    void listProfiles(appliedFilters)
-      .then(({ profiles: nextProfiles }) => {
-        setProfiles(nextProfiles);
-      })
-      .catch((err) => {
-        setError(
-          err instanceof Error ? err.message : "Could not load profiles",
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [appliedFilters]);
+  const [actionError, setActionError] = useState("");
+  const profilesQuery = useProfilesQuery(appliedFilters);
+  const profiles = profilesQuery.data ?? [];
+  const loading = profilesQuery.isLoading || profilesQuery.isFetching;
+  const error =
+    actionError ||
+    (profilesQuery.error
+      ? apiErrorMessage(profilesQuery.error, "Could not load profiles")
+      : "");
 
   const activeFilterCount = useMemo(
     () => Object.values(appliedFilters).filter(Boolean).length,
@@ -146,15 +138,13 @@ const Dashboard = () => {
   };
 
   const resetFilters = () => {
-    setLoading(true);
-    setError("");
+    setActionError("");
     setDraftFilters(blankFilters);
     setAppliedFilters(blankFilters);
   };
 
   const removeAppliedFilter = (field: keyof ProfileFilters) => {
-    setLoading(true);
-    setError("");
+    setActionError("");
     setDraftFilters((current) => ({ ...current, [field]: "" }));
     setAppliedFilters((current) => ({ ...current, [field]: "" }));
   };
@@ -163,7 +153,7 @@ const Dashboard = () => {
     if (!profile.id) {
       return;
     }
-    setError("");
+    setActionError("");
     try {
       const blob = await fetchProfilePdf(profile.id);
       const url = URL.createObjectURL(blob);
@@ -173,7 +163,9 @@ const Dashboard = () => {
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not download PDF");
+      setActionError(
+        err instanceof Error ? err.message : "Could not download PDF",
+      );
     }
   };
 
@@ -284,8 +276,7 @@ const Dashboard = () => {
                 <PrimaryButton
                   startIcon={<SearchIcon />}
                   onClick={() => {
-                    setLoading(true);
-                    setError("");
+                    setActionError("");
                     setAppliedFilters(draftFilters);
                   }}
                 >
@@ -396,8 +387,7 @@ const Dashboard = () => {
                     <PrimaryButton
                       startIcon={<FilterAltIcon />}
                       onClick={() => {
-                        setLoading(true);
-                        setError("");
+                        setActionError("");
                         setAppliedFilters(draftFilters);
                         setFiltersOpen(false);
                       }}

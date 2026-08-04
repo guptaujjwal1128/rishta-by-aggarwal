@@ -6,10 +6,12 @@ import {
   GlobalStyles,
   ThemeProvider,
 } from "@mui/material";
+import { Provider } from "react-redux";
 
 // Local
 import { THEME_OPTIONS } from "../constants/theme";
 import { AuthProvider } from "../context/AuthContext";
+import { store } from "../store";
 
 const theme = createTheme(THEME_OPTIONS);
 
@@ -63,9 +65,11 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
           },
         })}
       />
-      <BrowserRouter>
-        <AuthProvider>{children}</AuthProvider>
-      </BrowserRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <AuthProvider>{children}</AuthProvider>
+        </BrowserRouter>
+      </Provider>
     </ThemeProvider>
   );
 };

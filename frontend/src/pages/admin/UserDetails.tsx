@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router";
 import {
   Alert,
@@ -23,30 +23,21 @@ import { hasPermission, Permissions } from "../../constants/permissions";
 import { AppRoutes } from "../../constants/routes";
 import { useAuth } from "../../context/AuthContext";
 import useNavigation from "../../hooks/useNavigation";
-import { adminListUsers } from "../../services/api";
+import { apiErrorMessage, useAdminUsersQuery } from "../../store/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
-import type { AdminUser } from "../../types/domain";
 
 const UserDetails = () => {
   const { user: currentUser } = useAuth();
   const { goTo } = useNavigation();
   const { id } = useParams();
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const usersQuery = useAdminUsersQuery();
+  const loading = usersQuery.isLoading;
+  const error = usersQuery.error;
 
-  useEffect(() => {
-    void adminListUsers()
-      .then(({ users: nextUsers }) => setUsers(nextUsers))
-      .catch((err) => {
-        setError(
-          err instanceof Error ? err.message : "Could not load user details",
-        );
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const user = useMemo(() => users.find((item) => item.id === id), [id, users]);
+  const user = useMemo(
+    () => (usersQuery.data ?? []).find((item) => item.id === id),
+    [id, usersQuery.data],
+  );
 
   return (
     <ContentContainer>
@@ -71,7 +62,9 @@ const UserDetails = () => {
               <CircularProgress />
             </Box>
           ) : error ? (
-            <Alert severity="error">{error}</Alert>
+            <Alert severity="error">
+              {apiErrorMessage(error, "Could not load user details")}
+            </Alert>
           ) : !user ? (
             <Alert severity="warning">User not found.</Alert>
           ) : (

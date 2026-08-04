@@ -29,18 +29,17 @@ import {
 } from "../../components/atom/button/Button";
 import Header from "../../components/molecule/layout/header/Header";
 import { useAuth } from "../../context/AuthContext";
+import { assetUrl, fetchProfilePdf } from "../../services/api";
 import {
-  assetUrl,
-  fetchProfilePdf,
-  getMyProfile,
-  importBiodataWithAi,
-  listNotifications,
-  saveMyProfile,
-  uploadProfilePhotos,
-} from "../../services/api";
+  apiErrorMessage,
+  useImportProfileMutation,
+  useMyProfileQuery,
+  useNotificationsQuery,
+  useSaveMyProfileMutation,
+  useUploadProfilePhotosMutation,
+} from "../../store/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type {
-  NotificationRecord,
   Profile as ProfileRecord,
   ProfileDraft,
 } from "../../types/domain";
@@ -162,51 +161,48 @@ function fileSafeName(value: string) {
 
 const Profile = () => {
   const { user } = useAuth();
+  const profileQuery = useMyProfileQuery();
+  const notificationsQuery = useNotificationsQuery();
+  const [importProfile, { isLoading: importing }] = useImportProfileMutation();
+  const [saveProfileRequest, { isLoading: saving }] =
+    useSaveMyProfileMutation();
+  const [uploadPhotos] = useUploadProfilePhotosMutation();
   const [activeStep, setActiveStep] = useState(0);
   const [form, setForm] = useState<ProfileDraft>(() =>
     emptyDraft(user?.name, user?.email, user?.phone),
   );
   const [savedProfile, setSavedProfile] = useState<ProfileRecord | null>(null);
-  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [importing, setImporting] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    void getMyProfile()
-      .then(({ profile }) => {
-        if (profile) {
-          setSavedProfile(profile);
-          setForm(toDraft(profile));
-          setIsEditing(false);
-          return;
-        }
-        setForm(emptyDraft(user?.name, user?.email, user?.phone));
-        setIsEditing(true);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Could not load profile");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [user?.email, user?.name, user?.phone]);
+    if (profileQuery.isLoading) {
+      return;
+    }
+    if (profileQuery.data) {
+      // The query result becomes the initial editable draft after asynchronous loading.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSavedProfile(profileQuery.data);
+      setForm(toDraft(profileQuery.data));
+      setIsEditing(false);
+      return;
+    }
+    setForm(emptyDraft(user?.name, user?.email, user?.phone));
+    setIsEditing(true);
+  }, [
+    profileQuery.data,
+    profileQuery.isLoading,
+    user?.email,
+    user?.name,
+    user?.phone,
+  ]);
 
-  useEffect(() => {
-    void listNotifications()
-      .then(({ notifications: nextNotifications }) => {
-        setNotifications(
-          nextNotifications.filter((item) => item.channel === "app"),
-        );
-      })
-      .catch(() => {
-        setNotifications([]);
-      });
-  }, []);
+  const notifications = (notificationsQuery.data ?? []).filter(
+    (item) => item.channel === "app",
+  );
+  const loading = profileQuery.isLoading;
 
   const completion = useMemo(() => {
     const filled = requiredFields.filter((field) => Boolean(form[field]));
@@ -286,10 +282,10 @@ const Profile = () => {
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
     setError("");
     setMessage("");
-    setImporting(true);
     try {
-      const { draft, aiUsed, confidence, sourceType } =
-        await importBiodataWithAi(files);
+      const { draft, aiUsed, confidence, sourceType } = await importProfile({
+        files,
+      }).unwrap();
       setForm((current) => ({ ...current, ...draft }));
       if (imageFiles.length) {
         setPhotoFiles((current) => [...current, ...imageFiles].slice(0, 5));
@@ -307,8 +303,6 @@ const Profile = () => {
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not import biodata");
-    } finally {
-      setImporting(false);
     }
   };
 
@@ -317,15 +311,13 @@ const Profile = () => {
   };
 
   const saveProfile = async () => {
-    setSaving(true);
     setError("");
     setMessage("");
     try {
-      const { profile } = await saveMyProfile(form);
+      const profile = await saveProfileRequest(form).unwrap();
       let latest = profile;
       if (profile.id && photoFiles.length) {
-        const uploaded = await uploadProfilePhotos(profile.id, photoFiles);
-        latest = uploaded.profile;
+        latest = await uploadPhotos(photoFiles).unwrap();
       }
       setSavedProfile(latest);
       setForm(toDraft(latest));
@@ -334,8 +326,6 @@ const Profile = () => {
       setMessage("Biodata saved successfully.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save biodata");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -614,7 +604,12 @@ const Profile = () => {
             </Alert>
           ) : null}
 
-          {error ? <Alert severity="error">{error}</Alert> : null}
+          {error || profileQuery.error ? (
+            <Alert severity="error">
+              {error ||
+                apiErrorMessage(profileQuery.error, "Could not load profile")}
+            </Alert>
+          ) : null}
           {message ? <Alert severity="success">{message}</Alert> : null}
           {visibleNotifications.slice(0, 3).map((notification) => (
             <Alert key={notification.id} severity="info">

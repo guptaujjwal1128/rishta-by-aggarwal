@@ -12,7 +12,6 @@ const {
   listUsersWithProfiles,
   setProfileLock,
   setProfileVerification,
-  updateProfileById,
   updateUserAdminSettings,
 } = require("../db/postgres");
 const { authenticate } = require("../middleware/auth");
@@ -199,87 +198,69 @@ router.get(
   },
 );
 
-router.put(
-  "/profiles/:id",
-  requirePermission(Permissions.PROFILES_UPDATE),
-  async (req, res, next) => {
-    try {
-      const profile = await updateProfileById(
-        req.params.id,
-        profilePayload(req.body),
-      );
-      if (!profile) {
-        return res.status(404).json({ message: "Profile not found" });
-      }
-      await createAdminAuditLog({
-        actorUserId: req.user.id,
-        action: "profile.updated",
-        targetType: "profile",
-        targetId: profile.id,
-      });
-      res.json({ profile });
-    } catch (err) {
-      next(err);
+router.patch("/profiles/:id", async (req, res, next) => {
+  try {
+    const existing = await getProfileById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ message: "Profile not found" });
     }
-  },
-);
+    const updatesLock = typeof req.body.isLocked === "boolean";
+    const updatesVerification = typeof req.body.isVerified === "boolean";
+    if (!updatesLock && !updatesVerification) {
+      return res.status(400).json({
+        message: "Provide isLocked or isVerified as a boolean",
+      });
+    }
+    if (
+      updatesLock &&
+      req.user.permissions?.[Permissions.PROFILES_LOCK] !== true
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Missing profile lock permission" });
+    }
+    if (
+      updatesVerification &&
+      req.user.permissions?.[Permissions.PROFILES_VERIFY] !== true
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Missing profile verification permission" });
+    }
 
-router.patch(
-  "/profiles/:id/lock",
-  requirePermission(Permissions.PROFILES_LOCK),
-  async (req, res, next) => {
-    try {
-      const existing = await getProfileById(req.params.id);
-      if (!existing) {
-        return res.status(404).json({ message: "Profile not found" });
-      }
-      const profile = await setProfileLock(
+    let profile = existing;
+    if (updatesLock) {
+      profile = await setProfileLock(
         req.params.id,
-        req.body.isLocked !== false,
-        String(req.body.reason || ""),
+        req.body.isLocked,
+        String(req.body.lockedReason || ""),
       );
-      await createAdminAuditLog({
-        actorUserId: req.user.id,
-        action: "profile.lock.updated",
-        targetType: "profile",
-        targetId: profile.id,
-        beforeState: { isLocked: existing.isLocked },
-        afterState: { isLocked: profile.isLocked },
-      });
-      res.json({ profile });
-    } catch (err) {
-      next(err);
     }
-  },
-);
-
-router.patch(
-  "/profiles/:id/verify",
-  requirePermission(Permissions.PROFILES_VERIFY),
-  async (req, res, next) => {
-    try {
-      const existing = await getProfileById(req.params.id);
-      if (!existing) {
-        return res.status(404).json({ message: "Profile not found" });
-      }
-      const profile = await setProfileVerification(
+    if (updatesVerification) {
+      profile = await setProfileVerification(
         req.params.id,
-        req.body.isVerified !== false,
+        req.body.isVerified,
       );
-      await createAdminAuditLog({
-        actorUserId: req.user.id,
-        action: "profile.verification.updated",
-        targetType: "profile",
-        targetId: profile.id,
-        beforeState: { isVerified: existing.isVerified },
-        afterState: { isVerified: profile.isVerified },
-      });
-      res.json({ profile });
-    } catch (err) {
-      next(err);
     }
-  },
-);
+    await createAdminAuditLog({
+      actorUserId: req.user.id,
+      action: "profile.moderation.updated",
+      targetType: "profile",
+      targetId: profile.id,
+      beforeState: {
+        isLocked: existing.isLocked,
+        isVerified: existing.isVerified,
+      },
+      afterState: {
+        isLocked: profile.isLocked,
+        isVerified: profile.isVerified,
+      },
+    });
+    res.json({ profile });
+  } catch (err) {
+    next(err);
+  }
+});
 
 async function bulkDraftsFromRequest(req) {
   const drafts = [];
@@ -366,36 +347,6 @@ router.post(
         afterState: { count: created.length },
       });
       res.status(201).json({ created });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
-
-router.post(
-  "/profiles/bulk-upload",
-  requirePermission(Permissions.PROFILES_IMPORT),
-  upload.array("source", 25),
-  async (req, res, next) => {
-    try {
-      const { drafts, extractions, aiUsed, sourceType } =
-        await bulkDraftsFromRequest(req);
-      const created = [];
-      for (const draft of drafts) {
-        created.push(await createStandaloneProfile(draft));
-      }
-      await createAdminAuditLog({
-        actorUserId: req.user.id,
-        action: "profiles.bulk.uploaded",
-        targetType: "profile",
-        afterState: {
-          count: created.length,
-          aiUsed,
-          sourceType,
-          confidenceScores: extractions?.map((item) => item?.score),
-        },
-      });
-      return res.json({ created, extractions, aiUsed, sourceType });
     } catch (err) {
       next(err);
     }

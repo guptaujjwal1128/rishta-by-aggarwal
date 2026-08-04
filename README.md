@@ -5,8 +5,14 @@ Matrimonial biodata application with:
 - React/Vite frontend
 - Node/Express backend
 - PostgreSQL database
-- Vertex AI biodata extraction
-- Admin dashboard, profile verification, PDF biodata download, and photo uploads
+
+## Architecture
+
+- [Frontend architecture](frontend/README.md)
+- [Backend architecture](backend/README.md)
+
+The backend and PostgreSQL are the source of truth. The frontend uses Redux
+Toolkit/RTK Query for shared client state and API caching.
 
 ## Run Locally
 

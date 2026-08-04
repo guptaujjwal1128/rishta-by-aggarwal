@@ -152,16 +152,7 @@ export async function saveMyProfile(profile: ProfileDraft) {
   });
 }
 
-export async function importBiodata(file: File) {
-  const formData = new FormData();
-  formData.append("biodata", file);
-  return request<{ draft: ProfileDraft }>("/profiles/import", {
-    method: "POST",
-    body: formData,
-  });
-}
-
-export async function importBiodataWithAi(file?: File | File[], text?: string) {
+export async function extractProfile(file?: File | File[], text?: string) {
   const formData = new FormData();
   if (Array.isArray(file)) {
     file.forEach((item) => formData.append("source", item));
@@ -178,17 +169,17 @@ export async function importBiodataWithAi(file?: File | File[], text?: string) {
     draft: ProfileDraft;
     extractedTextPreview?: string;
     sourceType: string;
-  }>("/profiles/import-ai", {
+  }>("/profiles/extract", {
     method: "POST",
     body: formData,
   });
 }
 
-export async function uploadProfilePhotos(profileId: string, files: File[]) {
+export async function uploadMyProfilePhotos(files: File[]) {
   const formData = new FormData();
   files.forEach((file) => formData.append("photos", file));
 
-  return request<{ profile: Profile }>(`/profiles/${profileId}/photos`, {
+  return request<{ profile: Profile }>("/profiles/me/photos", {
     method: "POST",
     body: formData,
   });
@@ -264,48 +255,17 @@ export async function adminListProfiles(filters: ProfileFilters = {}) {
   );
 }
 
-export async function adminSetProfileLock(
+export async function adminModerateProfile(
   profileId: string,
-  isLocked: boolean,
-  reason?: string,
+  payload: {
+    isLocked?: boolean;
+    lockedReason?: string;
+    isVerified?: boolean;
+  },
 ) {
-  return request<{ profile: Profile }>(`/admin/profiles/${profileId}/lock`, {
+  return request<{ profile: Profile }>(`/admin/profiles/${profileId}`, {
     method: "PATCH",
-    body: JSON.stringify({ isLocked, reason }),
-  });
-}
-
-export async function adminSetProfileVerification(
-  profileId: string,
-  isVerified: boolean,
-) {
-  return request<{ profile: Profile }>(`/admin/profiles/${profileId}/verify`, {
-    method: "PATCH",
-    body: JSON.stringify({ isVerified }),
-  });
-}
-
-export async function adminBulkUploadProfiles(
-  file?: File | File[],
-  text?: string,
-) {
-  const formData = new FormData();
-  if (Array.isArray(file)) {
-    file.forEach((item) => formData.append("source", item));
-  } else if (file) {
-    formData.append("source", file);
-  }
-  if (text) {
-    formData.append("text", text);
-  }
-  return request<{
-    created: Profile[];
-    extractions?: ExtractionConfidence[];
-    aiUsed?: boolean;
-    sourceType?: string;
-  }>("/admin/profiles/bulk-upload", {
-    method: "POST",
-    body: formData,
+    body: JSON.stringify(payload),
   });
 }
 

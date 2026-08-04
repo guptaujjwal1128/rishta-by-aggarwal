@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Box,
@@ -27,16 +27,20 @@ import {
   type Permission,
 } from "../../constants/permissions";
 import {
-  adminListUsers,
-  adminNotifyUser,
-  adminUpdateUser,
-} from "../../services/api";
+  apiErrorMessage,
+  useAdminUsersQuery,
+  useNotifyAdminUserMutation,
+  useUpdateAdminUserMutation,
+} from "../../store/api";
 import { Content, ContentContainer } from "../../styles/Layout.styled";
 import type { AdminUser } from "../../types/domain";
 
 const Users = () => {
   const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const usersQuery = useAdminUsersQuery();
+  const [updateAdminUser] = useUpdateAdminUserMutation();
+  const [notifyAdminUser] = useNotifyAdminUserMutation();
+  const users = usersQuery.data ?? [];
   const [notifyUser, setNotifyUser] = useState<AdminUser | null>(null);
   const [notifyForm, setNotifyForm] = useState({
     title: "Complete your biodata",
@@ -54,27 +58,14 @@ const Users = () => {
     Permissions.NOTIFICATIONS_SEND,
   );
 
-  const load = async () => {
-    const { users: nextUsers } = await adminListUsers();
-    setUsers(nextUsers);
-  };
-
-  useEffect(() => {
-    void adminListUsers()
-      .then(({ users: nextUsers }) => {
-        setUsers(nextUsers);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Could not load users");
-      });
-  }, []);
-
   const toggleEdit = async (user: AdminUser) => {
     setError("");
     setMessage("");
     try {
-      await adminUpdateUser(user.id, { canEditBio: !user.canEditBio });
-      await load();
+      await updateAdminUser([
+        user.id,
+        { canEditBio: !user.canEditBio },
+      ]).unwrap();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update user");
     }
@@ -84,11 +75,13 @@ const Users = () => {
     setError("");
     setMessage("");
     try {
-      await adminUpdateUser(user.id, {
-        role: user.role === "admin" ? "user" : "admin",
-        permissions: user.role === "admin" ? {} : user.permissions,
-      });
-      await load();
+      await updateAdminUser([
+        user.id,
+        {
+          role: user.role === "admin" ? "user" : "admin",
+          permissions: user.role === "admin" ? {} : user.permissions,
+        },
+      ]).unwrap();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update role");
     }
@@ -98,13 +91,15 @@ const Users = () => {
     setError("");
     setMessage("");
     try {
-      await adminUpdateUser(user.id, {
-        permissions: {
-          ...user.permissions,
-          [permission]: user.permissions[permission] !== true,
+      await updateAdminUser([
+        user.id,
+        {
+          permissions: {
+            ...user.permissions,
+            [permission]: user.permissions[permission] !== true,
+          },
         },
-      });
-      await load();
+      ]).unwrap();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not update permissions",
@@ -137,14 +132,16 @@ const Users = () => {
     setError("");
     setMessage("");
     try {
-      await adminNotifyUser(notifyUser.id, {
-        channels: notifyForm.channels,
-        title: notifyForm.title,
-        message: notifyForm.message,
-      });
+      await notifyAdminUser([
+        notifyUser.id,
+        {
+          channels: notifyForm.channels,
+          title: notifyForm.title,
+          message: notifyForm.message,
+        },
+      ]).unwrap();
       setMessage(`Notification queued for ${notifyUser.name}.`);
       setNotifyUser(null);
-      await load();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not send notification",
@@ -170,7 +167,12 @@ const Users = () => {
             </Typography>
           </Box>
 
-          {error ? <Alert severity="error">{error}</Alert> : null}
+          {error || usersQuery.error ? (
+            <Alert severity="error">
+              {error ||
+                apiErrorMessage(usersQuery.error, "Could not load users")}
+            </Alert>
+          ) : null}
           {message ? <Alert severity="success">{message}</Alert> : null}
 
           <Paper
